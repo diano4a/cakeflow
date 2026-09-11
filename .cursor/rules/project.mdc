@@ -175,6 +175,12 @@ Preferred commit format:
 
 `KAN-123: short description`
 
+Branch cleanup:
+
+- Delete local feature branches after they are merged.
+- Use `git branch -d` so Git verifies the branch is fully merged. Do not use `-D` unless the user explicitly asks to discard unmerged work.
+- Leave remote branches alone unless the user asks to delete them.
+
 ## Code quality
 
 - Prefer readable code over clever code.
