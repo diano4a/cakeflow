@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
+import { LocaleSwitcher } from "@/i18n/locale-switcher";
 
 import { AppNav } from "./app-nav";
 
@@ -23,7 +24,10 @@ export function AppShell({
             <p className="type-label">{bakeryLabel}</p>
             <p className="type-heading">{bakeryName}</p>
           </div>
-          <SignOutButton />
+          <div className="flex flex-col gap-cluster sm:items-end">
+            <LocaleSwitcher />
+            <SignOutButton />
+          </div>
         </div>
         <nav className="frame hairline-b" aria-label={navLabel}>
           <AppNav />

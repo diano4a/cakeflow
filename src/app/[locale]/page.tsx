@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { LocaleSwitcher } from "@/i18n/locale-switcher";
 import { SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth/routes";
 
 export default function Home() {
@@ -10,6 +11,9 @@ export default function Home() {
   return (
     <main className="flex flex-1 flex-col justify-center px-5 py-16 sm:px-8">
       <div className="mx-auto w-full max-w-3xl">
+        <div className="mb-layout flex justify-end">
+          <LocaleSwitcher />
+        </div>
         <p className="type-label">{t("eyebrow")}</p>
 
         <h1 className="type-display divider-t mt-3 pt-5">{t("title")}</h1>

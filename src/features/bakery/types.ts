@@ -4,6 +4,7 @@ export type Workspace = {
   bakery: {
     id: string;
     name: string;
+    createdAt: string;
   };
   role: BakeryRole;
 };

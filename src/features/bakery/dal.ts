@@ -40,7 +40,7 @@ export const getCurrentWorkspace = cache(
 
     const { data: bakery, error: bakeryError } = await supabase
       .from("bakeries")
-      .select("id, name")
+      .select("id, name, created_at")
       .eq("id", membership.bakery_id)
       .maybeSingle();
 
@@ -54,7 +54,11 @@ export const getCurrentWorkspace = cache(
     }
 
     return {
-      bakery: { id: bakery.id, name: bakery.name },
+      bakery: {
+        id: bakery.id,
+        name: bakery.name,
+        createdAt: bakery.created_at,
+      },
       role: membership.role,
     };
   },

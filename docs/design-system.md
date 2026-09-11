@@ -147,3 +147,6 @@ translated, so everything stays compatible with next-intl (`uk` and `en`).
 Onest and JetBrains Mono both include Cyrillic, so Ukrainian UI, labels and
 data render in the same families as English. Archivo is used only for display
 and order numbers, which are Latin/numeric.
+
+User-facing copy uses next-intl (`uk` default, `en`). See `docs/i18n.md`.
+Do not translate user-entered bakery, catalog or order content.

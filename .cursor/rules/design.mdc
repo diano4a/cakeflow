@@ -59,6 +59,9 @@ Responsive typography:
 
 Localization:
 
-- All user-facing strings must use next-intl messages.
-- Supported locales are `uk` and `en`.
+- All user-facing strings must use next-intl messages in `src/i18n/messages/uk.json` and `en.json`.
+- Supported locales are `uk` (default) and `en`.
 - Do not hardcode user-facing copy in components.
+- Do not translate user-entered bakery, catalog or order content.
+- Format dates and times with `formatDateTime` / `useFormatter`, never a hardcoded locale.
+- Follow `docs/i18n.md` when adding a new feature namespace.
