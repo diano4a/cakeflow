@@ -1,0 +1,54 @@
+{
+  "Metadata": {
+    "title": "CakeFlow",
+    "description": "Order and production management for pastry chefs and small confectionery businesses."
+  },
+  "Landing": {
+    "title": "CakeFlow",
+    "tagline": "Order and production management for pastry chefs and small confectionery businesses.",
+    "signIn": "Sign in",
+    "signUp": "Create an account"
+  },
+  "Auth": {
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "fullNameLabel": "Full name",
+    "fullNamePlaceholder": "Your name",
+    "signInTitle": "Sign in to CakeFlow",
+    "signInSubtitle": "Enter your email and password to continue.",
+    "signInSubmit": "Sign in",
+    "signInPending": "Signing in…",
+    "signInNoAccount": "Don't have an account?",
+    "signUpTitle": "Create your CakeFlow account",
+    "signUpSubtitle": "Sign up with your email and a password.",
+    "signUpSubmit": "Create account",
+    "signUpPending": "Creating account…",
+    "signUpHasAccount": "Already have an account?",
+    "signOut": "Sign out",
+    "signOutPending": "Signing out…",
+    "checkYourEmail": "Almost there. Check your inbox to confirm your email address, then sign in.",
+    "errors": {
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Enter your password.",
+      "passwordTooShort": "Your password must be at least {min} characters.",
+      "invalidCredentials": "That email or password is not correct.",
+      "emailNotConfirmed": "Confirm your email address before signing in.",
+      "userAlreadyExists": "An account with this email already exists. Try signing in instead.",
+      "weakPassword": "Choose a stronger password.",
+      "rateLimited": "Too many attempts. Wait a moment and try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "signedInAs": "Signed in as {email}",
+    "placeholder": "Your bakery workspace will appear here."
+  },
+  "Locale": {
+    "label": "Language",
+    "en": "English",
+    "uk": "Ukrainian"
+  }
+}

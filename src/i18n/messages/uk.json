@@ -1,0 +1,54 @@
+{
+  "Metadata": {
+    "title": "CakeFlow",
+    "description": "Керування замовленнями та виробництвом для кондитерів і невеликих кондитерських."
+  },
+  "Landing": {
+    "title": "CakeFlow",
+    "tagline": "Керування замовленнями та виробництвом для кондитерів і невеликих кондитерських.",
+    "signIn": "Увійти",
+    "signUp": "Створити акаунт"
+  },
+  "Auth": {
+    "emailLabel": "Електронна пошта",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Пароль",
+    "fullNameLabel": "Повне ім'я",
+    "fullNamePlaceholder": "Ваше ім'я",
+    "signInTitle": "Вхід до CakeFlow",
+    "signInSubtitle": "Введіть електронну пошту та пароль, щоб продовжити.",
+    "signInSubmit": "Увійти",
+    "signInPending": "Виконується вхід…",
+    "signInNoAccount": "Немає акаунта?",
+    "signUpTitle": "Створення акаунта CakeFlow",
+    "signUpSubtitle": "Зареєструйтеся за допомогою електронної пошти та пароля.",
+    "signUpSubmit": "Створити акаунт",
+    "signUpPending": "Створення акаунта…",
+    "signUpHasAccount": "Вже маєте акаунт?",
+    "signOut": "Вийти",
+    "signOutPending": "Виконується вихід…",
+    "checkYourEmail": "Майже готово. Перевірте пошту й підтвердьте адресу, а потім увійдіть.",
+    "errors": {
+      "emailRequired": "Введіть адресу електронної пошти.",
+      "emailInvalid": "Введіть коректну адресу електронної пошти.",
+      "passwordRequired": "Введіть пароль.",
+      "passwordTooShort": "Пароль має містити не менше {min} символів.",
+      "invalidCredentials": "Неправильна електронна пошта або пароль.",
+      "emailNotConfirmed": "Підтвердьте адресу електронної пошти перед входом.",
+      "userAlreadyExists": "Акаунт із цією адресою вже існує. Спробуйте увійти.",
+      "weakPassword": "Виберіть надійніший пароль.",
+      "rateLimited": "Занадто багато спроб. Зачекайте трохи й спробуйте ще раз.",
+      "unexpected": "Щось пішло не так. Спробуйте ще раз."
+    }
+  },
+  "Dashboard": {
+    "title": "Панель",
+    "signedInAs": "Ви увійшли як {email}",
+    "placeholder": "Тут з'явиться робочий простір вашої кондитерської."
+  },
+  "Locale": {
+    "label": "Мова",
+    "en": "Англійська",
+    "uk": "Українська"
+  }
+}
