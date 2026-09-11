@@ -5,7 +5,7 @@ import { hasLocale } from "next-intl";
 import { redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import {
-  DASHBOARD_PATH,
+  APP_HOME_PATH,
   SIGN_IN_PATH,
   isProtectedPath,
 } from "@/lib/auth/routes";
@@ -73,7 +73,7 @@ function safeRedirectPath(value: FormDataEntryValue | null) {
   ) {
     return candidate;
   }
-  return DASHBOARD_PATH;
+  return APP_HOME_PATH;
 }
 
 export async function signIn(
@@ -142,7 +142,7 @@ export async function signUp(
     return { status: "confirmation-required" };
   }
 
-  return redirect({ href: DASHBOARD_PATH, locale });
+  return redirect({ href: APP_HOME_PATH, locale });
 }
 
 export async function signOut(formData: FormData) {

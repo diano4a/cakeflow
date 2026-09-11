@@ -42,10 +42,52 @@
       "unexpected": "Something went wrong. Please try again."
     }
   },
-  "Dashboard": {
-    "title": "Dashboard",
+  "Onboarding": {
+    "title": "Create your bakery",
+    "subtitle": "Give your bakery a name to start working in CakeFlow.",
+    "nameLabel": "Bakery name",
+    "namePlaceholder": "Your bakery",
+    "submit": "Create bakery",
+    "pending": "Creating bakery…",
+    "errors": {
+      "nameRequired": "Enter a bakery name.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "Shell": {
+    "bakeryLabel": "Bakery",
+    "navLabel": "App",
+    "nav": {
+      "orders": "Orders",
+      "production": "Production",
+      "overview": "Overview",
+      "settings": "Settings"
+    }
+  },
+  "Orders": {
+    "title": "Orders",
+    "placeholder": "Orders for this bakery will appear here."
+  },
+  "Production": {
+    "title": "Production",
+    "placeholder": "The production list for this bakery will appear here."
+  },
+  "Overview": {
+    "title": "Overview",
+    "placeholder": "Bakery figures will appear here.",
+    "bakeryLabel": "Bakery",
+    "roleLabel": "Role",
     "accountLabel": "Account",
-    "placeholder": "Your bakery workspace will appear here."
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "baker": "Baker"
+    }
+  },
+  "Settings": {
+    "title": "Settings",
+    "placeholder": "Bakery settings will appear here.",
+    "bakeryLabel": "Bakery"
   },
   "Locale": {
     "label": "Language",

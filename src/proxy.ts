@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { routing } from "@/i18n/routing";
 import {
-  DASHBOARD_PATH,
+  APP_HOME_PATH,
   SIGN_IN_PATH,
   isAuthPath,
   isProtectedPath,
@@ -12,7 +12,7 @@ import { refreshSession } from "@/lib/supabase/proxy";
 
 const handleLocaleRouting = createIntlMiddleware(routing);
 
-/** Splits `/uk/dashboard` into the locale and the locale-independent path. */
+/** Splits `/uk/orders` into the locale and the locale-independent path. */
 function splitLocale(pathname: string) {
   const [, maybeLocale, ...rest] = pathname.split("/");
   const locale = routing.locales.find((candidate) => candidate === maybeLocale);
@@ -38,7 +38,7 @@ export default async function proxy(request: NextRequest) {
 
   if (isAuthPath(pathname) && session.isAuthenticated) {
     const target = request.nextUrl.clone();
-    target.pathname = `/${locale}${DASHBOARD_PATH}`;
+    target.pathname = `/${locale}${APP_HOME_PATH}`;
     target.search = "";
     return session.applyTo(NextResponse.redirect(target));
   }
