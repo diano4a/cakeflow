@@ -57,6 +57,7 @@
   "Shell": {
     "bakeryLabel": "Bakery",
     "navLabel": "App",
+    "menu": "Menu",
     "nav": {
       "orders": "Orders",
       "production": "Production",
@@ -92,7 +93,7 @@
   },
   "Locale": {
     "label": "Language",
-    "en": "English",
-    "uk": "Ukrainian"
+    "ukShort": "UKR",
+    "enShort": "ENG"
   }
 }

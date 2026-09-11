@@ -8,12 +8,21 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 import { APP_NAV_ITEMS } from "./nav";
 
-export function AppNav() {
+type AppNavProps = {
+  variant?: "tabs" | "panel";
+  onNavigate?: () => void;
+};
+
+export function AppNav({ variant = "tabs", onNavigate }: AppNavProps) {
   const pathname = usePathname();
   const t = useTranslations("Shell.nav");
 
   return (
-    <ul className="flex flex-col sm:flex-row sm:gap-nav">
+    <ul
+      className={
+        variant === "tabs" ? "flex flex-row gap-nav" : "flex flex-col divide-y divide-hairline"
+      }
+    >
       {APP_NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
 
@@ -22,12 +31,22 @@ export function AppNav() {
             <Link
               href={item.href}
               aria-current={isActive ? "page" : undefined}
-              className={cn(
-                "type-body relative flex h-control items-center border-b-2 sm:h-auto sm:border-b-0 sm:py-cluster",
-                isActive
-                  ? "border-ink text-ink font-medium sm:after:bg-ink sm:after:absolute sm:after:inset-x-0 sm:after:-bottom-px sm:after:h-rule"
-                  : "border-hairline text-muted hover:text-ink",
-              )}
+              onClick={onNavigate}
+              className={
+                variant === "tabs"
+                  ? cn(
+                      "type-body relative flex h-auto items-center py-cluster",
+                      isActive
+                        ? "text-ink font-medium after:bg-ink after:absolute after:inset-x-0 after:-bottom-px after:h-rule"
+                        : "text-muted hover:text-ink",
+                    )
+                  : cn(
+                      "type-body flex h-control items-center",
+                      isActive
+                        ? "text-ink font-medium"
+                        : "text-muted hover:text-ink",
+                    )
+              }
             >
               {t(item.key)}
             </Link>

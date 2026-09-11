@@ -57,6 +57,7 @@
   "Shell": {
     "bakeryLabel": "Кондитерська",
     "navLabel": "Додаток",
+    "menu": "Меню",
     "nav": {
       "orders": "Замовлення",
       "production": "Виробництво",
@@ -92,7 +93,7 @@
   },
   "Locale": {
     "label": "Мова",
-    "en": "Англійська",
-    "uk": "Українська"
+    "ukShort": "УКР",
+    "enShort": "ENG"
   }
 }

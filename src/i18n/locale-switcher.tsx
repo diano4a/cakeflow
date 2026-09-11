@@ -17,25 +17,27 @@ function LocaleSwitcherLinks() {
   const query = Object.fromEntries(searchParams.entries());
 
   return (
-    <nav aria-label={t("label")} className="flex items-baseline gap-layout">
-      <span className="type-label">{t("label")}</span>
-      <ul className="flex gap-layout">
-        {routing.locales.map((code) => {
-          const isCurrent = code === locale;
+    <nav aria-label={t("label")} className="flex shrink-0 items-baseline whitespace-nowrap">
+      {routing.locales.map((code, index) => {
+        const isCurrent = code === locale;
 
-          return (
-            <li key={code}>
-              <LocaleOption
-                code={code}
-                href={pathname}
-                isCurrent={isCurrent}
-                label={t(code)}
-                query={query}
-              />
-            </li>
-          );
-        })}
-      </ul>
+        return (
+          <span key={code} className="flex items-baseline">
+            {index > 0 ? (
+              <span className="type-data text-muted" aria-hidden>
+                {" · "}
+              </span>
+            ) : null}
+            <LocaleOption
+              code={code}
+              href={pathname}
+              isCurrent={isCurrent}
+              label={t(code === "uk" ? "ukShort" : "enShort")}
+              query={query}
+            />
+          </span>
+        );
+      })}
     </nav>
   );
 }
@@ -53,9 +55,14 @@ function LocaleOption({
   label: string;
   query: Record<string, string>;
 }) {
+  const className = cn(
+    "type-data",
+    isCurrent ? "text-ink font-medium" : "text-muted hover:text-ink",
+  );
+
   if (isCurrent) {
     return (
-      <span className="type-body font-medium" aria-current="true">
+      <span className={className} lang={code} aria-current="true">
         {label}
       </span>
     );
@@ -65,26 +72,25 @@ function LocaleOption({
     <Link
       href={{ pathname: href, query }}
       locale={code}
-      className={cn("type-body text-muted hover:text-ink")}
+      lang={code}
+      className={className}
     >
       {label}
     </Link>
   );
 }
 
-function LocaleSwitcherFallback() {
+export function LocaleSwitcher() {
   const t = useTranslations("Locale");
 
   return (
-    <nav aria-label={t("label")} className="flex items-baseline gap-layout">
-      <span className="type-label">{t("label")}</span>
-    </nav>
-  );
-}
-
-export function LocaleSwitcher() {
-  return (
-    <Suspense fallback={<LocaleSwitcherFallback />}>
+    <Suspense
+      fallback={
+        <nav aria-label={t("label")} className="type-data text-muted">
+          {t("ukShort")}
+        </nav>
+      }
+    >
       <LocaleSwitcherLinks />
     </Suspense>
   );
