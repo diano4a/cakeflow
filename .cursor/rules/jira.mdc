@@ -1,0 +1,27 @@
+---
+description: Jira MCP workflow for CakeFlow tasks
+alwaysApply: true
+---
+
+# Jira MCP
+
+Use Jira MCP as the source of truth for issue details.
+
+When the user references an issue such as `KAN-1`:
+
+- Fetch the issue from Jira before implementation.
+- Do not rely only on issue titles mentioned in chat.
+- Read description, acceptance criteria, and status.
+- If Jira requirements conflict with chat instructions, ask for clarification.
+- Do not update Jira issue status unless the user explicitly asks.
+- Do not create Jira comments unless the user explicitly asks.
+- Do not modify other Jira issues while implementing the current issue.
+
+Before coding, respond with:
+
+- Goal
+- Implementation plan
+- Files to create or modify
+- Any assumptions
+
+Then wait for approval if the user asked to review the plan first.

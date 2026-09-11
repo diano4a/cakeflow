@@ -1,0 +1,208 @@
+---
+description: Core development rules for CakeFlow
+alwaysApply: true
+---
+
+# CakeFlow
+
+CakeFlow is a SaaS web application for pastry chefs and small confectionery businesses.
+
+The current goal is to build an MVP quickly, with a clean foundation that can later be extended.
+
+## Product principles
+
+- Prioritize MVP speed over premature scalability.
+- Implement only what is required by the current Jira issue.
+- Do not invent extra features.
+- Do not redesign unrelated parts of the application.
+- Prefer simple, maintainable solutions.
+- Avoid overengineering.
+- Avoid introducing abstractions before they are actually needed.
+
+## Tech stack
+
+- Next.js
+- React
+- TypeScript
+- App Router
+- Tailwind CSS
+- Supabase
+- PostgreSQL
+- ESLint
+
+## React / Next.js
+
+- Use TypeScript everywhere.
+- Use functional React components.
+- Prefer Server Components by default.
+- Add `"use client"` only when client-side state, effects, browser APIs, or event handlers require it.
+- Keep components small and focused.
+- Prefer composition over large configurable components.
+- Do not create unnecessary wrapper components.
+- Use async Server Components where appropriate.
+- Keep page-level components thin when possible.
+
+## Project structure
+
+Use the following structure where appropriate:
+
+src/
+app/
+components/
+features/
+lib/
+types/
+
+Use `features` for domain-specific functionality.
+
+Example:
+
+features/
+auth/
+dashboard/
+orders/
+customers/
+products/
+expenses/
+
+Shared reusable UI belongs in:
+
+src/components/
+
+Shared utilities and integrations belong in:
+
+src/lib/
+
+Shared TypeScript types belong in:
+
+src/types/
+
+Do not create folders unless they are needed by the current implementation.
+
+## Styling
+
+- Use Tailwind CSS.
+- Avoid inline styles.
+- Reuse existing spacing, typography, and UI patterns.
+- Keep the UI simple and clean.
+- Do not introduce a UI library unless explicitly requested.
+- Do not install dependencies only for small visual conveniences.
+
+## Supabase
+
+- Use Supabase for database, authentication, and storage where applicable.
+- Use `@supabase/ssr` for Next.js integration.
+- Never expose service role keys to the browser.
+- Use environment variables for Supabase configuration.
+- Prefer server-side database access when possible.
+- Use browser Supabase clients only when client-side interaction requires it.
+- Enable and respect Row Level Security.
+- Every user-owned business entity must be isolated from other users.
+- Do not disable RLS as a shortcut.
+- Prefer database migrations over manual schema changes when implementation work begins.
+- Follow installed Supabase and Postgres agent skills.
+
+## Database
+
+- Use UUID primary keys unless there is a clear reason not to.
+- Add `created_at` timestamps where useful.
+- Add `updated_at` only when actually needed.
+- Use foreign keys for relationships.
+- Use database constraints where they protect data integrity.
+- Add indexes only when justified by query patterns.
+- Do not duplicate data unnecessarily.
+
+## State management
+
+- Prefer Server Components and server data fetching first.
+- Use local React state for local UI state.
+- Redux Toolkit is the preferred solution for complex shared client-side state. Do not mirror Supabase server data into Redux unless there is a clear client-side need. Use local React state for component-local UI state.
+- Do not introduce React Query unless server/client caching requirements justify it.
+
+## Dependencies
+
+Before installing any new package:
+
+1. Check whether the requirement can be solved using the existing stack.
+2. Prefer built-in browser, React, Next.js, or Supabase functionality.
+3. Install a package only if it provides meaningful value.
+
+Do not install dependencies without a clear reason.
+
+## Jira workflow
+
+Jira is the source of truth for implementation tasks.
+
+Before implementing a Jira issue:
+
+1. Read the entire issue using Jira MCP.
+2. Read the description and acceptance criteria.
+3. Inspect the existing repository.
+4. Identify the smallest implementation that satisfies the issue.
+5. Produce a short implementation plan.
+6. Mention which files will be created or modified.
+
+Do not write code until the plan is clear.
+
+During implementation:
+
+- Stay within the scope of the current Jira issue.
+- Do not implement future Jira issues.
+- Do not silently change unrelated code.
+- Preserve existing working functionality.
+
+After implementation:
+
+1. Run lint.
+2. Run TypeScript/build checks where applicable.
+3. Fix errors caused by the implementation.
+4. Summarize what changed.
+5. List files changed.
+6. Mention assumptions.
+7. Mention remaining work only if it belongs to another Jira issue.
+
+Do not automatically start the next Jira issue.
+
+## Git
+
+- Keep changes focused on one Jira issue.
+- Do not rewrite unrelated files.
+- Do not commit secrets.
+- Never commit `.env.local`.
+- Use meaningful commit messages.
+
+Preferred commit format:
+
+`KAN-123: short description`
+
+## Code quality
+
+- Prefer readable code over clever code.
+- Use descriptive variable and function names.
+- Avoid large functions.
+- Avoid unnecessary comments.
+- Add comments only when the reasoning is not obvious from the code.
+- Do not use `any` unless there is no reasonable alternative.
+- Avoid non-null assertions unless the value is guaranteed by application logic.
+- Handle expected error states explicitly.
+
+## Error handling
+
+- Do not silently swallow important errors.
+- Show user-friendly messages in the UI.
+- Log useful server-side errors where appropriate.
+- Do not expose internal implementation details or secrets to users.
+
+## MVP constraint
+
+This project is currently in MVP stage.
+
+When multiple implementation options exist, prefer the solution that is:
+
+1. correct,
+2. secure,
+3. simple,
+4. fast to implement,
+5. easy to change later.
+
+Do not optimize for hypothetical scale before it exists.
