@@ -199,6 +199,46 @@ async function ensureCatalog(admin, bakeryId) {
   return data;
 }
 
+async function ensureCatalogOptions(admin, bakeryId) {
+  const { data: existing, error: selectError } = await admin
+    .from("catalog_options")
+    .select("kind, name")
+    .eq("bakery_id", bakeryId);
+  if (selectError) {
+    fail(`could not read catalog options: ${selectError.message}`);
+  }
+
+  const wanted = [
+    { kind: "product_type", name: "Cake" },
+    { kind: "product_type", name: "Bento" },
+    { kind: "product_type", name: "Cupcakes" },
+    { kind: "product_type", name: "Dessert" },
+    { kind: "filling", name: "Vanilla cream" },
+    { kind: "filling", name: "Chocolate ganache" },
+    { kind: "filling", name: "Berry" },
+    { kind: "shape", name: "Round" },
+    { kind: "shape", name: "Heart" },
+    { kind: "shape", name: "Square" },
+    { kind: "size", name: "1 kg" },
+    { kind: "size", name: "1.5 kg" },
+    { kind: "size", name: "2 kg" },
+    { kind: "size", name: "Bento" },
+  ];
+
+  const missing = wanted.filter(
+    (item) =>
+      !existing.some((row) => row.kind === item.kind && row.name === item.name),
+  );
+  if (missing.length > 0) {
+    const { error } = await admin.from("catalog_options").insert(
+      missing.map((item) => ({ ...item, bakery_id: bakeryId })),
+    );
+    if (error) {
+      fail(`could not insert catalog options: ${error.message}`);
+    }
+  }
+}
+
 function daysFromNow(days) {
   const date = new Date();
   date.setDate(date.getDate() + days);
@@ -341,6 +381,7 @@ async function main() {
   const bakeryId = await ensureBakery(admin, byRole.owner.id);
   await ensureMemberships(admin, bakeryId, members);
   const catalog = await ensureCatalog(admin, bakeryId);
+  await ensureCatalogOptions(admin, bakeryId);
   await ensureOrders(admin, bakeryId, catalog, byRole);
 
   console.log(`seed-dev: bakery "${BAKERY_NAME}" ready (${bakeryId}).`);

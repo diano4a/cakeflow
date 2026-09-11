@@ -418,6 +418,96 @@ async function main() {
       (bakerCatalog.data ?? []).length > 0,
     );
 
+    const bakerOptions = await baker.client.from("catalog_options").select("id, is_active");
+    check(
+      "baker can read catalog options",
+      (bakerOptions.data ?? []).length > 0,
+    );
+
+    const bakerInsertOption = await baker.client
+      .from("catalog_options")
+      .insert({
+        bakery_id: bakeryId,
+        kind: "filling",
+        name: "RLS baker should not add this",
+      })
+      .select("id");
+    check(
+      "baker cannot add a catalog option",
+      bakerInsertOption.error !== null,
+      bakerInsertOption.error?.code,
+    );
+
+    const managerOption = await manager.client
+      .from("catalog_options")
+      .insert({
+        bakery_id: bakeryId,
+        kind: "filling",
+        name: "RLS manager temp filling",
+      })
+      .select("id, is_active, name")
+      .single();
+    check(
+      "manager can add a catalog option",
+      !managerOption.error && managerOption.data?.is_active === true,
+      managerOption.error?.message,
+    );
+
+    if (managerOption.data?.id) {
+      const deactivated = await manager.client
+        .from("catalog_options")
+        .update({ is_active: false })
+        .eq("id", managerOption.data.id)
+        .select("id, is_active")
+        .single();
+      check(
+        "manager can deactivate a catalog option",
+        deactivated.data?.is_active === false,
+        deactivated.error?.message,
+      );
+
+      const activeOnly = await baker.client
+        .from("catalog_options")
+        .select("id, name")
+        .eq("is_active", true);
+      check(
+        "deactivated options are excluded from the active list",
+        !(activeOnly.data ?? []).some((row) => row.id === managerOption.data.id),
+      );
+
+      const stillVisible = await baker.client
+        .from("catalog_options")
+        .select("id, name")
+        .eq("id", managerOption.data.id);
+      check(
+        "deactivated options remain readable so existing orders are not broken",
+        (stillVisible.data ?? []).length === 1,
+      );
+
+      await admin.from("catalog_options").delete().eq("id", managerOption.data.id);
+    }
+
+    const rivalOption = await admin
+      .from("catalog_options")
+      .insert({
+        bakery_id: rival.bakeryId,
+        kind: "product_type",
+        name: "Rival cake",
+      })
+      .select("id")
+      .single();
+    const bakerSeesRivalOption = await baker.client
+      .from("catalog_options")
+      .select("id")
+      .eq("id", rivalOption.data?.id ?? "00000000-0000-0000-0000-000000000000");
+    check(
+      "baker cannot read another bakery's catalog options",
+      (bakerSeesRivalOption.data ?? []).length === 0,
+    );
+    if (rivalOption.data?.id) {
+      await admin.from("catalog_options").delete().eq("id", rivalOption.data.id);
+    }
+
     const teammates = await baker.client.from("profiles").select("id");
     check(
       "baker sees only teammate profiles, not the outsider",

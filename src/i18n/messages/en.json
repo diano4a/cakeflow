@@ -88,8 +88,42 @@
   },
   "Settings": {
     "title": "Settings",
-    "placeholder": "Bakery settings will appear here.",
+    "description": "Bakery identity and the catalog options offered on new orders.",
     "bakeryLabel": "Bakery"
+  },
+  "Catalog": {
+    "orderFieldsLabel": "New orders",
+    "orderFieldsHelp": "Only active options appear here. Deactivated options stay on existing orders as stored text.",
+    "selectPlaceholder": "Select",
+    "addLabel": "New option",
+    "addPlaceholder": "Name",
+    "addSubmit": "Add",
+    "addPending": "Adding…",
+    "rename": "Rename",
+    "renameSave": "Save",
+    "renameCancel": "Cancel",
+    "renamePending": "Saving…",
+    "deactivate": "Deactivate",
+    "inactive": "Inactive",
+    "emptyActive": "No active options yet.",
+    "kinds": {
+      "product_type": "Product types",
+      "filling": "Fillings",
+      "shape": "Shapes",
+      "size": "Sizes"
+    },
+    "fields": {
+      "product_type": "Product type",
+      "filling": "Filling",
+      "shape": "Shape",
+      "size": "Size"
+    },
+    "errors": {
+      "nameRequired": "Enter a name.",
+      "nameTaken": "An active option with this name already exists.",
+      "unexpected": "Something went wrong. Please try again.",
+      "forbidden": "You do not have permission to change the catalog."
+    }
   },
   "Locale": {
     "label": "Language",
