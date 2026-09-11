@@ -15,7 +15,12 @@ function ChromeSubmit() {
   const t = useTranslations("Auth");
 
   return (
-    <Button type="submit" variant="outline" disabled={pending}>
+    <Button
+      type="submit"
+      variant="outline"
+      disabled={pending}
+      className="hover:border-ink"
+    >
       {pending ? t("signOutPending") : t("signOut")}
     </Button>
   );
@@ -29,10 +34,12 @@ function PanelSubmit() {
     <button
       type="submit"
       disabled={pending}
-      className="type-body flex min-h-control w-full items-center justify-between py-cluster font-medium disabled:opacity-40"
+      className="type-body group flex min-h-control w-full items-center justify-between py-cluster font-medium transition-colors hover:text-ink disabled:opacity-40"
     >
       <span>{pending ? t("signOutPending") : t("signOut")}</span>
-      <span aria-hidden="true">→</span>
+      <span className="text-muted transition-colors group-hover:text-ink" aria-hidden="true">
+        →
+      </span>
     </button>
   );
 }

@@ -55,7 +55,10 @@ export function AppHeader({
           <button
             ref={triggerRef}
             type="button"
-            className="type-label flex h-control shrink-0 items-center whitespace-nowrap md:hidden"
+            className={cn(
+              "type-label flex h-control shrink-0 items-center whitespace-nowrap transition-colors md:hidden",
+              open ? "text-ink" : "hover:text-ink",
+            )}
             aria-expanded={open}
             aria-controls={panelId}
             aria-label={t("menu")}
