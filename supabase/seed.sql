@@ -1,0 +1,9 @@
+-- Intentionally empty.
+--
+-- CakeFlow's demo data depends on auth users, which cannot be created from
+-- plain SQL without writing credentials into the repository. Seeding is done
+-- by scripts/seed-dev.mjs through the Auth admin API instead, with the
+-- password supplied via SEED_DEV_PASSWORD:
+--
+--   supabase start
+--   npm run seed:dev
