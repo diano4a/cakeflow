@@ -67,7 +67,45 @@
   },
   "Orders": {
     "title": "Замовлення",
-    "placeholder": "Тут з'являться замовлення цієї кондитерської."
+    "placeholder": "Тут з'являться замовлення цієї кондитерської.",
+    "new": "+ Нове замовлення",
+    "createTitle": "Нове замовлення",
+    "createDescription": "Перетворіть запит клієнта на структуроване замовлення для виробництва.",
+    "back": "Замовлення",
+    "saveDraft": "Зберегти чернетку",
+    "saveDraftPending": "Збереження…",
+    "submitProduction": "Передати у виробництво",
+    "submitPending": "Надсилання…",
+    "assigneeNone": "Без виконавця",
+    "weightPlaceholder": "2.5",
+    "pricePlaceholder": "0.00",
+    "decorationPlaceholder": "Кольори, стиль, деталі",
+    "notesPlaceholder": "Нотатки клієнта або менеджера",
+    "emptyProductTypes": "Додайте тип виробу в Налаштуваннях, перш ніж створювати замовлення.",
+    "openCatalog": "Відкрити каталог",
+    "fields": {
+      "weight": "Вага (кг)",
+      "decoration": "Оформлення",
+      "inscription": "Напис",
+      "deadline": "Дедлайн",
+      "price": "Ціна",
+      "prepayment": "Передоплата",
+      "notes": "Нотатки",
+      "assignee": "Виконавець"
+    },
+    "errors": {
+      "productRequired": "Оберіть тип виробу.",
+      "deadlineRequired": "Вкажіть дедлайн.",
+      "deadlineInvalid": "Вкажіть коректний дедлайн.",
+      "weightInvalid": "Вкажіть вагу більшу за 0.",
+      "priceInvalid": "Вкажіть ціну 0 або більше.",
+      "prepaymentInvalid": "Вкажіть передоплату 0 або більше.",
+      "prepaymentExceedsPrice": "Передоплата не може перевищувати ціну.",
+      "optionUnavailable": "Цей варіант каталогу більше недоступний.",
+      "assigneeInvalid": "Оберіть учасника цієї кондитерської.",
+      "forbidden": "У вас немає права створювати замовлення.",
+      "unexpected": "Щось пішло не так. Спробуйте ще раз."
+    }
   },
   "Production": {
     "title": "Виробництво",

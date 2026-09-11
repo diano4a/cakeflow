@@ -67,7 +67,45 @@
   },
   "Orders": {
     "title": "Orders",
-    "placeholder": "Orders for this bakery will appear here."
+    "placeholder": "Orders for this bakery will appear here.",
+    "new": "+ New order",
+    "createTitle": "New order",
+    "createDescription": "Turn a customer request into a structured order for production.",
+    "back": "Orders",
+    "saveDraft": "Save draft",
+    "saveDraftPending": "Saving…",
+    "submitProduction": "Submit to production",
+    "submitPending": "Submitting…",
+    "assigneeNone": "Unassigned",
+    "weightPlaceholder": "2.5",
+    "pricePlaceholder": "0.00",
+    "decorationPlaceholder": "Colours, style, details",
+    "notesPlaceholder": "Customer or manager notes",
+    "emptyProductTypes": "Add a product type in Settings before creating an order.",
+    "openCatalog": "Open catalog",
+    "fields": {
+      "weight": "Weight (kg)",
+      "decoration": "Decoration",
+      "inscription": "Inscription",
+      "deadline": "Deadline",
+      "price": "Price",
+      "prepayment": "Prepayment",
+      "notes": "Notes",
+      "assignee": "Assignee"
+    },
+    "errors": {
+      "productRequired": "Select a product type.",
+      "deadlineRequired": "Set a deadline.",
+      "deadlineInvalid": "Enter a valid deadline.",
+      "weightInvalid": "Enter a valid weight greater than 0.",
+      "priceInvalid": "Enter a valid price of 0 or more.",
+      "prepaymentInvalid": "Enter a valid prepayment of 0 or more.",
+      "prepaymentExceedsPrice": "Prepayment cannot exceed the price.",
+      "optionUnavailable": "That catalog option is no longer available.",
+      "assigneeInvalid": "Select someone from this bakery.",
+      "forbidden": "You do not have permission to create orders.",
+      "unexpected": "Something went wrong. Please try again."
+    }
   },
   "Production": {
     "title": "Production",

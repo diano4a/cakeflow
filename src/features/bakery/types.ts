@@ -9,6 +9,12 @@ export type Workspace = {
   role: BakeryRole;
 };
 
+export type BakeryMember = {
+  userId: string;
+  fullName: string | null;
+  role: BakeryRole;
+};
+
 /** Values are message keys under `Onboarding.errors`, not user-facing text. */
 export type CreateBakeryFormState = {
   status: "idle" | "error";

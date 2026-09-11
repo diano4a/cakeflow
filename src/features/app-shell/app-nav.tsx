@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "cn";
 
-import { SETTINGS_PATH } from "@/lib/auth/routes";
+import { ORDERS_PATH, SETTINGS_PATH } from "@/lib/auth/routes";
 import { Link, usePathname } from "@/i18n/navigation";
 
 import { APP_NAV_ITEMS } from "./nav";
@@ -26,7 +26,7 @@ export function AppNav({ variant = "tabs", onNavigate }: AppNavProps) {
     >
       {APP_NAV_ITEMS.map((item) => {
         const isActive =
-          item.href === SETTINGS_PATH
+          item.href === SETTINGS_PATH || item.href === ORDERS_PATH
             ? pathname === item.href || pathname.startsWith(`${item.href}/`)
             : pathname === item.href;
 

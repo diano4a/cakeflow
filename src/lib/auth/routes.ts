@@ -3,6 +3,7 @@ export const SIGN_IN_PATH = "/sign-in";
 export const SIGN_UP_PATH = "/sign-up";
 export const ONBOARDING_PATH = "/onboarding";
 export const ORDERS_PATH = "/orders";
+export const ORDERS_NEW_PATH = "/orders/new";
 export const PRODUCTION_PATH = "/production";
 export const OVERVIEW_PATH = "/overview";
 export const SETTINGS_PATH = "/settings";

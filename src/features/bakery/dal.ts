@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { APP_HOME_PATH, ONBOARDING_PATH } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 
-import { isBakeryRole, type Workspace } from "./types";
+import { isBakeryRole, type BakeryMember, type Workspace } from "./types";
 
 /**
  * Resolves the current bakery from membership. MVP is single-workspace: if a
@@ -72,6 +72,38 @@ export async function requireWorkspace(locale: string): Promise<Workspace> {
   }
 
   return workspace;
+}
+
+export async function listBakeryMembers(
+  bakeryId: string,
+): Promise<BakeryMember[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("bakery_members")
+    .select("user_id, role, profiles(full_name)")
+    .eq("bakery_id", bakeryId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("listBakeryMembers: failed to read members", error);
+    return [];
+  }
+
+  return (data ?? []).flatMap((row) => {
+    if (!isBakeryRole(row.role)) {
+      return [];
+    }
+
+    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+
+    return [
+      {
+        userId: row.user_id,
+        fullName: profile?.full_name ?? null,
+        role: row.role,
+      },
+    ];
+  });
 }
 
 export async function requireOnboarding(locale: string): Promise<void> {
