@@ -31,6 +31,12 @@ const MEMBERS = [
   { role: "baker", localPart: "baker", fullName: "Demo Baker" },
 ];
 
+class UnusedRealtimeTransport {
+  constructor() {
+    throw new Error("The seed script does not use realtime subscriptions.");
+  }
+}
+
 function fail(message) {
   console.error(`seed-dev: ${message}`);
   process.exit(1);
@@ -315,6 +321,10 @@ async function main() {
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
+    // supabase-js builds a realtime client eagerly and needs a global
+    // WebSocket, which Node 20 does not provide. The seed only makes REST
+    // calls, so a stub keeps it working without pulling in a ws dependency.
+    realtime: { transport: UnusedRealtimeTransport },
   });
 
   const members = [];

@@ -346,6 +346,18 @@ create policy production_checklist_items_delete_managers on public.production_ch
 
 grant usage on schema public to authenticated;
 
+-- Local stacks may still auto-expose new tables to the Data API roles, so the
+-- anon grants are revoked explicitly. Without this, whether anon reaches these
+-- tables depends on the environment rather than on this migration. RLS already
+-- blocks anon (every policy is TO authenticated); this makes it deterministic.
+revoke all on public.profiles from anon;
+revoke all on public.bakeries from anon;
+revoke all on public.bakery_members from anon;
+revoke all on public.catalog_items from anon;
+revoke all on public.orders from anon;
+revoke all on public.order_references from anon;
+revoke all on public.production_checklist_items from anon;
+
 grant select, insert, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.bakeries to authenticated;
 grant select, insert, update, delete on public.bakery_members to authenticated;
