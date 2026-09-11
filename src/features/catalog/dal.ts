@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 
-import { isCatalogKind, type CatalogOption } from "./types";
+import { isCatalogKind, type CatalogKind, type CatalogOption } from "./types";
 
 type CatalogOptionRow = {
   id: string;
@@ -29,6 +29,7 @@ function toOption(row: CatalogOptionRow): CatalogOption | null {
 async function fetchCatalogOptions(
   bakeryId: string,
   activeOnly: boolean,
+  kind?: CatalogKind,
 ): Promise<CatalogOption[]> {
   const supabase = await createClient();
   let query = supabase
@@ -36,6 +37,10 @@ async function fetchCatalogOptions(
     .select("id, bakery_id, kind, name, is_active")
     .eq("bakery_id", bakeryId)
     .order("created_at", { ascending: true });
+
+  if (kind) {
+    query = query.eq("kind", kind);
+  }
 
   if (activeOnly) {
     query = query.eq("is_active", true);
@@ -65,4 +70,8 @@ export function listCatalogOptions(bakeryId: string) {
  */
 export function listCatalogOptionsForOrder(bakeryId: string) {
   return fetchCatalogOptions(bakeryId, true);
+}
+
+export function listCatalogOptionsByKind(bakeryId: string, kind: CatalogKind) {
+  return fetchCatalogOptions(bakeryId, false, kind);
 }

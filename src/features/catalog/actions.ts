@@ -48,7 +48,7 @@ function mapWriteError(code: string | undefined): CatalogFormState {
 }
 
 function refreshSettings(locale: string) {
-  revalidatePath(`/${locale}/settings`);
+  revalidatePath(`/${locale}/settings`, "layout");
 }
 
 export async function addCatalogOption(

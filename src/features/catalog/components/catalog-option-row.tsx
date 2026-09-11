@@ -6,7 +6,6 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusText } from "@/components/ui/status-text";
 import { renameCatalogOption, deactivateCatalogOption } from "../actions";
 import { initialCatalogFormState, type CatalogOption } from "../types";
 
@@ -24,15 +23,6 @@ export function CatalogOptionRow({
     renameCatalogOption,
     initialCatalogFormState,
   );
-
-  if (!option.isActive) {
-    return (
-      <li className="flex items-baseline justify-between gap-layout py-cluster">
-        <p className="type-body text-muted min-w-0 truncate">{option.name}</p>
-        <StatusText emphasis="quiet">{t("inactive")}</StatusText>
-      </li>
-    );
-  }
 
   if (editing && canManage) {
     const nameError = state.fieldErrors?.name
@@ -76,7 +66,7 @@ export function CatalogOptionRow({
               </Button>
               <button
                 type="button"
-                className="type-label hover:text-ink"
+                className="type-body text-muted hover:text-ink"
                 onClick={() => setEditing(false)}
               >
                 {t("renameCancel")}
@@ -90,23 +80,36 @@ export function CatalogOptionRow({
 
   return (
     <li className="flex flex-col gap-cluster py-cluster sm:flex-row sm:items-center sm:justify-between">
-      <p className="type-value min-w-0 truncate">{option.name}</p>
+      <p
+        className={
+          option.isActive
+            ? "type-value min-w-0 truncate"
+            : "type-body text-muted min-w-0 truncate"
+        }
+      >
+        {option.name}
+      </p>
       {canManage ? (
         <div className="flex shrink-0 items-center gap-layout">
           <button
             type="button"
-            className="type-label hover:text-ink"
+            className="type-body text-muted hover:text-ink"
             onClick={() => setEditing(true)}
           >
             {t("rename")}
           </button>
-          <form action={deactivateCatalogOption}>
-            <input type="hidden" name="locale" value={locale} />
-            <input type="hidden" name="id" value={option.id} />
-            <button type="submit" className="type-label hover:text-ink">
-              {t("deactivate")}
-            </button>
-          </form>
+          {option.isActive ? (
+            <form action={deactivateCatalogOption}>
+              <input type="hidden" name="locale" value={locale} />
+              <input type="hidden" name="id" value={option.id} />
+              <button
+                type="submit"
+                className="type-body text-muted hover:text-ink"
+              >
+                {t("deactivate")}
+              </button>
+            </form>
+          ) : null}
         </div>
       ) : null}
     </li>
