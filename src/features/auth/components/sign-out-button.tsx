@@ -11,7 +11,7 @@ function SubmitButton() {
   const t = useTranslations("Auth");
 
   return (
-    <Button type="submit" variant="outline" disabled={pending}>
+    <Button type="submit" variant="quiet" size="sm" disabled={pending}>
       {pending ? t("signOutPending") : t("signOut")}
     </Button>
   );

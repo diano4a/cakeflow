@@ -17,21 +17,21 @@ export function AppShell({
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="px-5 sm:px-8">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 py-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+      <header className="px-layout">
+        <div className="frame flex flex-col gap-layout pt-layout pb-cluster sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-cluster">
             <p className="type-label">{bakeryLabel}</p>
-            <p className="type-heading mt-1">{bakeryName}</p>
+            <p className="type-heading">{bakeryName}</p>
           </div>
           <SignOutButton />
         </div>
-        <nav className="mx-auto w-full max-w-3xl divider-b" aria-label={navLabel}>
+        <nav className="frame hairline-b" aria-label={navLabel}>
           <AppNav />
         </nav>
       </header>
 
-      <main className="flex flex-1 flex-col px-5 py-8 sm:px-8">
-        <div className="mx-auto w-full max-w-3xl">{children}</div>
+      <main className="flex flex-1 flex-col px-layout py-layout">
+        <div className="frame">{children}</div>
       </main>
     </div>
   );

@@ -13,7 +13,7 @@ export function AppNav() {
   const t = useTranslations("Shell.nav");
 
   return (
-    <ul className="flex flex-col divide-y divide-hairline sm:flex-row sm:gap-6 sm:divide-y-0">
+    <ul className="flex flex-col sm:flex-row sm:gap-nav">
       {APP_NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
 
@@ -23,8 +23,10 @@ export function AppNav() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "type-body flex h-control items-center sm:h-auto sm:py-3",
-                isActive ? "text-ink font-medium" : "text-muted hover:text-ink",
+                "type-body relative flex h-control items-center border-b-2 sm:h-auto sm:border-b-0 sm:py-cluster",
+                isActive
+                  ? "border-ink text-ink font-medium sm:after:bg-ink sm:after:absolute sm:after:inset-x-0 sm:after:-bottom-px sm:after:h-rule"
+                  : "border-hairline text-muted hover:text-ink",
               )}
             >
               {t(item.key)}

@@ -65,13 +65,33 @@
   --spacing-hairline: 1px;
   --spacing-divider: 1.5px;
   --spacing-row-y: 1rem;
-  --spacing-spec-label: 78px;
-  --spacing-spec-gap: 20px;
   --spacing-control: 2.75rem;
   --spacing-control-sm: 2.25rem;
 
+  /* Layout rhythm: 16px mobile → ~20px tablet → 24px desktop.
+     Interpolated from 380px to 1280px so 768px lands near 20px. */
+  --spacing-layout: clamp(1rem, 0.789rem + 0.889vw, 1.5rem);
+
+  /* Heading + supporting line, or identity + navigation. */
+  --spacing-cluster: 0.5rem;
+
+  /* Navigation item rhythm: 16px mobile → ~24px tablet → 32px desktop. */
+  --spacing-nav: clamp(1rem, 0.578rem + 1.778vw, 2rem);
+
+  /* Active navigation rule, drawn on the shared hairline. */
+  --spacing-rule: 2px;
+
+  /* Spec label column: a floor for short English labels. The column grows
+     with the longest label in a SpecList (see subgrid on SpecRow). */
+  --spacing-spec-label: 78px;
+  --spacing-spec-gap: var(--spacing-layout);
+
   /* Wrapped prose sits in the 36–40ch editorial measure. */
   --container-measure: 38ch;
+
+  /* Authenticated app frame. Wide enough for desktop work, capped so a
+     1600px+ display does not stretch the sheet edge-to-edge. */
+  --container-app: 72rem;
 }
 
 /* Border widths are not a Tailwind theme namespace, so they live here and are
@@ -203,6 +223,13 @@
 /* Keeps wrapped prose in the editorial measure. */
 @utility measure {
   max-width: var(--container-measure);
+}
+
+/* Shared app-shell width. Use this instead of page-specific max-widths. */
+@utility frame {
+  width: 100%;
+  max-width: var(--container-app);
+  margin-inline: auto;
 }
 
 /* ---------------------------------------------------------------------------

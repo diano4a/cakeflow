@@ -11,9 +11,10 @@ type SpecRowProps = {
 };
 
 /**
- * The recipe-sheet row: a fixed 78px label column, a flexible value column and
- * a hairline underneath. Below 400px the columns stack so the value keeps a
- * usable measure at a 380px viewport.
+ * The recipe-sheet row: label and value on a hairline. From `sm` up, rows in
+ * a SpecList share one label column via subgrid so a long Ukrainian label
+ * widens every row instead of overlapping the value. Short English labels
+ * still sit on the 78px floor. Below `sm` the pair stacks.
  */
 export function SpecRow({
   label,
@@ -24,11 +25,13 @@ export function SpecRow({
   return (
     <div
       className={cn(
-        "hairline-b grid gap-1 py-row-y min-[400px]:grid-cols-[var(--spacing-spec-label)_1fr] min-[400px]:items-baseline min-[400px]:gap-x-spec-gap min-[400px]:gap-y-0",
+        "hairline-b grid grid-cols-1 gap-y-cluster py-row-y sm:col-span-full sm:grid-cols-subgrid sm:items-baseline sm:gap-y-0",
         className,
       )}
     >
-      <span className="type-label min-[400px]:pt-[0.2em]">{label}</span>
+      <span className="type-label sm:whitespace-nowrap sm:pt-[0.2em]">
+        {label}
+      </span>
       <span className={data ? "type-data" : "type-value"}>{children}</span>
     </div>
   );
@@ -43,6 +46,13 @@ export function SpecList({
   className?: string;
 }) {
   return (
-    <div className={cn("hairline-t", className)}>{children}</div>
+    <div
+      className={cn(
+        "hairline-t grid grid-cols-1 sm:grid-cols-[minmax(var(--spacing-spec-label),max-content)_minmax(0,1fr)] sm:gap-x-layout",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }

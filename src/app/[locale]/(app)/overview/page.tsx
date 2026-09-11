@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { SpecList, SpecRow } from "@/components/ui/spec-row";
 import { requireWorkspace } from "@/features/bakery/dal";
 import { requireUser } from "@/lib/auth/dal";
@@ -11,11 +12,10 @@ export default async function OverviewPage() {
   const t = await getTranslations("Overview");
 
   return (
-    <section>
-      <h1 className="type-heading">{t("title")}</h1>
-      <p className="type-body text-muted measure mt-5">{t("placeholder")}</p>
+    <section className="flex flex-col gap-layout">
+      <PageHeader title={t("title")} description={t("placeholder")} />
 
-      <SpecList className="mt-8">
+      <SpecList>
         <SpecRow label={t("bakeryLabel")}>{workspace.bakery.name}</SpecRow>
         <SpecRow label={t("roleLabel")}>{t(`roles.${workspace.role}`)}</SpecRow>
         <SpecRow label={t("accountLabel")} data>

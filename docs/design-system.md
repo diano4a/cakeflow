@@ -80,19 +80,30 @@ is needed, add a `--text-*` token and a role utility here.
 
 ## Structure
 
-| Token                     | Value | Role                                  |
-| ------------------------- | ----- | ------------------------------------- |
-| `--hairline-width`        | 1px   | Standard separator                    |
-| `--divider-width`         | 1.5px | Strong section divider, drawn in ink  |
-| `--spacing-row-y`         | 16px  | Standard row vertical breathing room  |
-| `--spacing-spec-label`    | 78px  | Spec label column width               |
-| `--spacing-spec-gap`      | 20px  | Spec column gap                       |
-| `--spacing-control`       | 44px  | Touch-friendly control height         |
-| `--spacing-control-sm`    | 36px  | Compact control height                |
-| radius                    | 0     | Every radius token is zero            |
+| Token                     | Value                         | Role                                         |
+| ------------------------- | ----------------------------- | -------------------------------------------- |
+| `--hairline-width`        | 1px                           | Standard separator                           |
+| `--divider-width`         | 1.5px                         | Strong section divider, drawn in ink         |
+| `--spacing-layout`        | 16 → 20 → 24px                | Shared page/section rhythm                   |
+| `--spacing-cluster`       | 8px                           | Heading + description, identity + navigation |
+| `--spacing-nav`           | 16 → 24 → 32px                | Space between navigation items               |
+| `--spacing-rule`          | 2px                           | Active navigation indicator                  |
+| `--spacing-row-y`         | 16px                          | Spec row vertical breathing room             |
+| `--spacing-spec-label`    | 78px min                      | Spec label column floor; grows with content  |
+| `--spacing-spec-gap`      | `--spacing-layout`            | Spec label/value gap                         |
+| `--spacing-control`       | 44px                          | Touch-friendly control height                |
+| `--spacing-control-sm`    | 36px                          | Compact control height                       |
+| `--container-app`         | 72rem                         | Authenticated shell max width                |
+| `--container-measure`     | 38ch                          | Wrapped prose measure                        |
+| radius                    | 0                             | Every radius token is zero                   |
+
+Layout and nav sizes are a single `clamp()` each, from a 380px mobile floor to
+a 1280px desktop ceiling, so tablet sits in between rather than jumping at a
+breakpoint. Use `gap-layout`, `px-layout`, `gap-cluster`, `gap-nav` and the
+`frame` utility. Do not add one-off gaps or max-widths in feature components.
 
 Separator utilities: `hairline-t`, `hairline-b`, `hairline-y`, `divider-t`,
-`divider-b`.
+`divider-b`. The `frame` utility centers content at `--container-app`.
 
 ## Primitives
 
@@ -101,15 +112,21 @@ reused, but the default styling is replaced — no radius, shadow, ring color or
 animated zoom survives.
 
 - `Button` — square. `default` is ink on paper; `outline` is a hairline box;
-  `ghost` and `link` are unfilled. Sizes map to the control height tokens.
+  `ghost` is unfilled; `link` and `quiet` are text-only. `quiet` is for
+  secondary utilities such as sign-out: same ink, no box, regular weight.
+  Sizes map to the control height tokens.
 - `Input`, `Textarea`, `SelectTrigger` — underlined, not boxed: a hairline that
   becomes ink on focus and a 1.5px ink rule when `aria-invalid`.
 - `Checkbox` — square, ink fill with a paper check, widened touch target.
 - `Select` — the menu is a squared paper sheet with a hairline edge; the
   selected and hovered rows use `tile`.
-- `SpecRow` / `SpecList` — the recipe-sheet row: 78px label column, flexible
-  value column, 20px gap, hairline underneath. Stacks below 400px.
-- `SectionDivider` — a hairline or strong rule, optionally labelled.
+- `SpecRow` / `SpecList` — the recipe-sheet row. From `sm` up, `SpecList`
+  is a two-column subgrid: the label column is at least 78px and grows to
+  the longest label in the list, then a layout-rhythm gap, then the value.
+  Long Ukrainian labels never overlap the value, and short English labels
+  still share that column so values align. Below `sm` the pair stacks.
+- `PageHeader` — title and description as one cluster, used at the top of
+  app screens. Section content follows with `gap-layout`.
 - `StatusText` — status through weight and case; no pills, no status colors.
 
 Shared primitives never contain user-facing copy. Labels are passed in already
@@ -123,7 +140,7 @@ translated, so everything stays compatible with next-intl (`uk` and `en`).
 - `prefers-reduced-motion: reduce` collapses animation and transition
   durations globally.
 - The system is designed to work down to a 380px viewport: the spec row stacks,
-  primary buttons go full width, and page padding drops to 20px.
+  primary buttons go full width, and page padding follows `--spacing-layout`.
 
 ## Localization and fonts
 

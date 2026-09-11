@@ -33,6 +33,13 @@ Use semantic design tokens:
 - hairline
 - tile
 
+Spacing:
+
+- Use shared `--spacing-layout` (16 → 24px), `--spacing-cluster` (8px), and `--spacing-nav` (16 → 32px).
+- Do not add one-off gaps or max-widths in feature components.
+- Spec label column is at least 78px and grows with the longest localized label.
+- Authenticated shell width is `--container-app` / `frame`.
+
 Controls:
 
 - square corners

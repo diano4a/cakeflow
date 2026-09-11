@@ -16,6 +16,8 @@ const buttonVariants = cva(
         outline: "border-hairline text-ink hover:bg-tile",
         ghost: "text-ink hover:bg-tile",
         link: "text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink",
+        quiet:
+          "border-0 px-0 font-normal text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink",
       },
       size: {
         // Control heights stay touch-friendly on phones and tablets.
