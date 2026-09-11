@@ -25,12 +25,10 @@
   --color-hairline: #e2e1dc;
   --color-tile: #eeede8;
 
-  /* Font roles. Archivo ships no Cyrillic subset, so the fallback stack
-     carries Ukrainian copy; JetBrains Mono covers Cyrillic itself. */
-  --font-sans: var(--font-archivo), "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
-  --font-display: var(--font-archivo), "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
+  /* Font roles. Onest covers Ukrainian Cyrillic for UI/prose; Archivo is
+     display/order-number only; JetBrains Mono covers Cyrillic for data. */
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo,
     monospace;
 

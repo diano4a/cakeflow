@@ -1,22 +1,31 @@
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Archivo, JetBrains_Mono } from "next/font/google";
+import { Archivo, JetBrains_Mono, Onest } from "next/font/google";
 
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
 /**
- * Archivo carries UI text and prose. Loading the width axis also gives us
- * Archivo Expanded (wdth 125%), which the display role uses for order numbers.
- * Archivo has no Cyrillic subset, so the fallback stack renders Ukrainian.
+ * Onest is the UI/prose face. Ukrainian is CakeFlow's primary language, so
+ * this load includes the Cyrillic subsets — UI text must never fall back to
+ * a different typeface in `uk` than in `en`.
+ */
+const onest = Onest({
+  variable: "--font-onest",
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  display: "swap",
+});
+
+/**
+ * Archivo is display/order-number only. The width axis gives Archivo Expanded
+ * (wdth 125%), applied by the `type-display` utility.
  */
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin", "latin-ext"],
   axes: ["wdth"],
   display: "swap",
-  fallback: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
 });
 
 /** Functional labels, dates, prices and identifiers. Covers Cyrillic. */
@@ -53,7 +62,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${archivo.variable} ${jetBrainsMono.variable} h-full antialiased`}
+      className={`${onest.variable} ${archivo.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <body className="bg-page text-ink flex min-h-full flex-col">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>

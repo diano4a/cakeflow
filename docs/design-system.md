@@ -41,13 +41,14 @@ Three families, with fixed semantic roles that never change by viewport:
 
 | Family              | Role                                                    |
 | ------------------- | ------------------------------------------------------- |
-| Archivo             | UI text, prose, values, buttons                         |
+| Onest               | UI text, prose, values, buttons                         |
 | Archivo Expanded    | Display and order numbers only                          |
 | JetBrains Mono      | Labels, dates, dimensions, prices, IDs, structured data |
 
-Archivo Expanded is not a separate font: it is the `wdth` 125% axis of the
-variable Archivo family, loaded in `src/app/[locale]/layout.tsx` and applied by
-the `type-display` utility.
+Ukrainian is CakeFlow's primary language. Onest is loaded with the Cyrillic
+subsets so UI/prose uses the same typeface in `uk` and `en`. Archivo remains
+display-only: Archivo Expanded is the `wdth` 125% axis of the variable Archivo
+family, loaded in `src/app/[locale]/layout.tsx` and applied by `type-display`.
 
 ### Role utilities
 
@@ -56,10 +57,10 @@ Use these instead of composing font size, family and color by hand:
 | Utility         | Family           | Baseline size | Notes                                |
 | --------------- | ---------------- | ------------- | ------------------------------------ |
 | `type-label`    | JetBrains Mono   | 11 → 12px     | Uppercase, wide tracking, muted      |
-| `type-body`     | Archivo          | 14 → 15px     | Prose and UI text, line-height 1.65  |
-| `type-value`    | Archivo          | 14 → 15px     | A value opposite a label, medium     |
+| `type-body`     | Onest            | 14 → 15px     | Prose and UI text, line-height 1.65  |
+| `type-value`    | Onest            | 14 → 15px     | A value opposite a label, medium     |
 | `type-data`     | JetBrains Mono   | 13 → 14px     | Tabular numerals for structured data |
-| `type-heading`  | Archivo          | 18 → 24px     | Section and page titles              |
+| `type-heading`  | Onest            | 18 → 24px     | Section and page titles              |
 | `type-display`  | Archivo Expanded | 28 → 48px     | Display and order numbers            |
 
 `measure` caps wrapped prose at 38ch, inside the 36–40ch editorial measure.
@@ -124,10 +125,8 @@ translated, so everything stays compatible with next-intl (`uk` and `en`).
 - The system is designed to work down to a 380px viewport: the spec row stacks,
   primary buttons go full width, and page padding drops to 20px.
 
-## Known limitation
+## Localization and fonts
 
-Archivo has no Cyrillic subset on Google Fonts, so Ukrainian UI text renders in
-the fallback stack (Helvetica Neue / Helvetica / Arial) rather than Archivo.
-JetBrains Mono does include Cyrillic, so labels and data render in the intended
-face in both locales. Replacing Archivo with a Cyrillic-capable face is a
-design decision and is deliberately not taken here.
+Onest and JetBrains Mono both include Cyrillic, so Ukrainian UI, labels and
+data render in the same families as English. Archivo is used only for display
+and order numbers, which are Latin/numeric.

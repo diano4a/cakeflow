@@ -20,8 +20,8 @@ Visual language:
 
 Typography:
 
-- Archivo = UI/prose
-- Archivo Expanded = display/order number only
+- Onest = UI/prose
+- Archivo / Archivo Expanded = display/order number only
 - JetBrains Mono = labels/data/dates/prices/IDs
 
 Use semantic design tokens:
