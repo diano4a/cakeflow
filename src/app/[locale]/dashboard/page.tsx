@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { SpecList, SpecRow } from "@/components/ui/spec-row";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { requireUser } from "@/lib/auth/dal";
 
@@ -11,20 +12,21 @@ export default async function DashboardPage({
   const t = await getTranslations("Dashboard");
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-6 sm:p-10">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("signedInAs", { email: user.email })}
-          </p>
-        </div>
-        <SignOutButton />
-      </header>
+    <main className="flex flex-1 flex-col px-5 py-10 sm:px-8">
+      <div className="mx-auto w-full max-w-3xl">
+        <header className="divider-b flex flex-col gap-4 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <h1 className="type-heading">{t("title")}</h1>
+          <SignOutButton />
+        </header>
 
-      <p className="text-muted-foreground">{t("placeholder")}</p>
+        <SpecList className="mt-8">
+          <SpecRow label={t("accountLabel")} data>
+            {user.email}
+          </SpecRow>
+        </SpecList>
+
+        <p className="type-body text-muted measure mt-8">{t("placeholder")}</p>
+      </div>
     </main>
   );
 }

@@ -13,18 +13,17 @@ export function AuthField({ id, label, error, ...props }: AuthFieldProps) {
   const errorId = `${id}-error`;
 
   return (
-    <div className="grid gap-2">
+    <div className="grid gap-1">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
         name={id}
-        className="h-10"
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
         {...props}
       />
       {error ? (
-        <p id={errorId} className="text-sm text-destructive">
+        <p id={errorId} className="type-label text-ink pt-1">
           {error}
         </p>
       ) : null}

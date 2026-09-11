@@ -18,7 +18,7 @@ export function SignInForm({ redirectTo }: { redirectTo?: string }) {
   );
 
   return (
-    <form action={formAction} className="grid gap-4" noValidate>
+    <form action={formAction} className="grid gap-6" noValidate>
       {state.formError ? (
         <AuthFormError message={t(`errors.${state.formError}`)} />
       ) : null}

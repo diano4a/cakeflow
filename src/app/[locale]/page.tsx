@@ -8,16 +8,24 @@ export default function Home() {
   const t = useTranslations("Landing");
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6 p-8 text-center">
-      <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="max-w-md text-muted-foreground">{t("tagline")}</p>
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button asChild size="lg">
-          <Link href={SIGN_IN_PATH}>{t("signIn")}</Link>
-        </Button>
-        <Button asChild size="lg" variant="outline">
-          <Link href={SIGN_UP_PATH}>{t("signUp")}</Link>
-        </Button>
+    <main className="flex flex-1 flex-col justify-center px-5 py-16 sm:px-8">
+      <div className="mx-auto w-full max-w-3xl">
+        <p className="type-label">{t("eyebrow")}</p>
+
+        <h1 className="type-display divider-t mt-3 pt-5">{t("title")}</h1>
+
+        <p className="type-body text-muted measure hairline-t mt-5 pt-5">
+          {t("tagline")}
+        </p>
+
+        <div className="hairline-t mt-8 flex flex-col gap-3 pt-8 sm:flex-row">
+          <Button asChild size="lg">
+            <Link href={SIGN_IN_PATH}>{t("signIn")}</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href={SIGN_UP_PATH}>{t("signUp")}</Link>
+          </Button>
+        </div>
       </div>
     </main>
   );

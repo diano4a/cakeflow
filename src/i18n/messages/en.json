@@ -4,6 +4,7 @@
     "description": "Order and production management for pastry chefs and small confectionery businesses."
   },
   "Landing": {
+    "eyebrow": "Pastry production",
     "title": "CakeFlow",
     "tagline": "Order and production management for pastry chefs and small confectionery businesses.",
     "signIn": "Sign in",
@@ -43,7 +44,7 @@
   },
   "Dashboard": {
     "title": "Dashboard",
-    "signedInAs": "Signed in as {email}",
+    "accountLabel": "Account",
     "placeholder": "Your bakery workspace will appear here."
   },
   "Locale": {

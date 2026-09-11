@@ -13,23 +13,21 @@ export default async function SignInPage({
   ]);
 
   return (
-    <div className="grid gap-6">
-      <div className="grid gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("signInTitle")}
-        </h1>
-        <p className="text-sm text-muted-foreground">{t("signInSubtitle")}</p>
-      </div>
+    <div className="grid gap-8">
+      <header className="grid gap-2">
+        <h1 className="type-heading">{t("signInTitle")}</h1>
+        <p className="type-body text-muted measure">{t("signInSubtitle")}</p>
+      </header>
 
       <SignInForm
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
       />
 
-      <p className="text-sm text-muted-foreground">
+      <p className="type-body text-muted hairline-t pt-4">
         {t("signInNoAccount")}{" "}
         <Link
           href={SIGN_UP_PATH}
-          className="font-medium text-foreground underline"
+          className="text-ink font-medium underline decoration-hairline underline-offset-4 hover:decoration-ink"
         >
           {t("signUpSubmit")}
         </Link>

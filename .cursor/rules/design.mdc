@@ -1,0 +1,57 @@
+---
+alwaysApply: true
+---
+
+CakeFlow Design System — mandatory
+
+Use the shared CakeFlow design tokens and primitives.
+Never hardcode palette colors in feature components.
+
+Visual language:
+
+- editorial minimalism
+- monochrome only
+- no accent colors
+- no gradients
+- no shadows
+- no rounded cards
+- no SaaS dashboard card grids
+- hairline separators instead of boxed cards
+
+Typography:
+
+- Archivo = UI/prose
+- Archivo Expanded = display/order number only
+- JetBrains Mono = labels/data/dates/prices/IDs
+
+Use semantic design tokens:
+
+- page
+- paper
+- ink
+- muted
+- hairline
+- tile
+
+Controls:
+
+- square corners
+- square checkboxes
+- ink primary button
+- visible keyboard focus
+
+If a design change conflicts with the CakeFlow design language, reject the generic shadcn/Tailwind default and preserve CakeFlow styling.
+
+Responsive typography:
+
+- Font-family roles never change by viewport.
+- Typography sizes may adapt across desktop, tablet, and mobile.
+- Use shared responsive typography tokens/utilities instead of one-off responsive font sizes.
+- Prefer `clamp()` where appropriate for display text and headings.
+- Keep body text comfortably readable on mobile; do not shrink it just to fit more content.
+
+Localization:
+
+- All user-facing strings must use next-intl messages.
+- Supported locales are `uk` and `en`.
+- Do not hardcode user-facing copy in components.
