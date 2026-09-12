@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { hasLocale } from "next-intl";
 
 import { listBakeryMembers, getCurrentWorkspace } from "@/features/bakery/dal";
-import { listCatalogOptionsForOrder } from "@/features/catalog/dal";
+import {
+  listCatalogOptionsForOrder,
+  listProductTypeFillings,
+} from "@/features/catalog/dal";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { ORDERS_PATH, SIGN_IN_PATH } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
@@ -157,6 +160,11 @@ export async function createOrder(
   const fillingIdsAllowed = new Set(
     catalog.filter((option) => option.kind === "filling").map((option) => option.id),
   );
+  const compatibleFillingIds = new Set(
+    (await listProductTypeFillings(workspace.bakery.id))
+      .filter((link) => link.productTypeId === product?.id)
+      .map((link) => link.fillingId),
+  );
   const shapeNames = namesForKind(catalog, "shape");
   const sizeNames = namesForKind(catalog, "size");
 
@@ -168,6 +176,8 @@ export async function createOrder(
 
   if (fillingIds.some((id) => !fillingIdsAllowed.has(id))) {
     fieldErrors.filling = "optionUnavailable";
+  } else if (fillingIds.some((id) => !compatibleFillingIds.has(id))) {
+    fieldErrors.filling = "fillingIncompatible";
   }
   if (shape && !shapeNames.has(shape)) {
     fieldErrors.shape = "optionUnavailable";

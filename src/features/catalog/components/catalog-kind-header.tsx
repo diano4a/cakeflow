@@ -3,17 +3,19 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import type { CatalogKind } from "../types";
+import type { CatalogKind, CatalogOption } from "../types";
 import { CatalogAddForm } from "./catalog-add-form";
 
 export function CatalogKindHeader({
   kind,
   canManage,
   title,
+  productTypes,
 }: {
   kind: CatalogKind;
   canManage: boolean;
   title: string;
+  productTypes: CatalogOption[];
 }) {
   const t = useTranslations("Catalog");
   const [adding, setAdding] = useState(false);
@@ -29,6 +31,9 @@ export function CatalogKindHeader({
           {kind === "size" ? (
             <p className="type-body text-muted pt-cluster">{t("sizeHint")}</p>
           ) : null}
+          {kind === "filling" ? (
+            <p className="type-body text-muted pt-cluster">{t("fillingHint")}</p>
+          ) : null}
         </div>
         {canManage && !adding ? (
           <button
@@ -43,6 +48,7 @@ export function CatalogKindHeader({
       {canManage && adding ? (
         <CatalogAddForm
           kind={kind}
+          productTypes={productTypes}
           onCancel={() => setAdding(false)}
           onSuccess={() => setAdding(false)}
         />

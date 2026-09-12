@@ -18,6 +18,12 @@ export type CatalogOption = {
   name: string;
   isActive: boolean;
   measurementMode: MeasurementMode | null;
+  productTypeIds: string[];
+};
+
+export type ProductTypeFilling = {
+  productTypeId: string;
+  fillingId: string;
 };
 
 export function isMeasurementMode(value: string): value is MeasurementMode {
@@ -31,6 +37,7 @@ export type CatalogFormState = {
   fieldErrors?: {
     name?: string;
     measurementMode?: string;
+    productTypes?: string;
   };
 };
 

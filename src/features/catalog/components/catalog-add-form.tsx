@@ -11,15 +11,19 @@ import {
   initialCatalogFormState,
   type CatalogFormState,
   type CatalogKind,
+  type CatalogOption,
 } from "../types";
 import { CatalogMeasurementField } from "./catalog-measurement-field";
+import { CatalogProductTypeAvailability } from "./catalog-product-type-availability";
 
 export function CatalogAddForm({
   kind,
+  productTypes,
   onCancel,
   onSuccess,
 }: {
   kind: CatalogKind;
+  productTypes: CatalogOption[];
   onCancel: () => void;
   onSuccess: () => void;
 }) {
@@ -33,6 +37,9 @@ export function CatalogAddForm({
     : undefined;
   const modeError = state.fieldErrors?.measurementMode
     ? t(`errors.${state.fieldErrors.measurementMode}`)
+    : undefined;
+  const productTypesError = state.fieldErrors?.productTypes
+    ? t(`errors.${state.fieldErrors.productTypes}`)
     : undefined;
 
   async function submit(formData: FormData) {
@@ -95,6 +102,12 @@ export function CatalogAddForm({
           </button>
         </div>
       </div>
+      {kind === "filling" ? (
+        <CatalogProductTypeAvailability
+          productTypes={productTypes}
+          error={productTypesError}
+        />
+      ) : null}
     </form>
   );
 }

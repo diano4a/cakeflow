@@ -44,6 +44,85 @@ function readName(formData: FormData) {
   return String(formData.get("name") ?? "").trim();
 }
 
+function readProductTypeIds(formData: FormData) {
+  return [
+    ...new Set(
+      formData
+        .getAll("productTypeId")
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+    ),
+  ];
+}
+
+async function selectedFillingProductTypeIds(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  bakeryId: string,
+  formData: FormData,
+): Promise<{ ok: true; ids: string[] } | { ok: false; error: "productTypesRequired" | "unexpected" }> {
+  const { data: productTypes, error: productTypesError } = await supabase
+    .from("catalog_options")
+    .select("id")
+    .eq("bakery_id", bakeryId)
+    .eq("kind", "product_type")
+    .eq("is_active", true);
+
+  if (productTypesError) {
+    console.error("selectedFillingProductTypeIds: read failed", productTypesError);
+    return { ok: false, error: "unexpected" };
+  }
+
+  const allowed = new Set((productTypes ?? []).map((row) => row.id));
+  const selected =
+    String(formData.get("allProductTypes") ?? "") === "on"
+      ? [...allowed]
+      : readProductTypeIds(formData).filter((id) => allowed.has(id));
+
+  if (selected.length === 0) {
+    return { ok: false, error: "productTypesRequired" };
+  }
+
+  return { ok: true, ids: selected };
+}
+
+async function replaceFillingProductTypes(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  bakeryId: string,
+  fillingId: string,
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: "productTypesRequired" | "unexpected" }> {
+  const selected = await selectedFillingProductTypeIds(supabase, bakeryId, formData);
+  if (!selected.ok) {
+    return selected;
+  }
+
+  const { error: deleteError } = await supabase
+    .from("product_type_fillings")
+    .delete()
+    .eq("bakery_id", bakeryId)
+    .eq("filling_id", fillingId);
+
+  if (deleteError) {
+    console.error("replaceFillingProductTypes: delete failed", deleteError);
+    return { ok: false, error: "unexpected" };
+  }
+
+  const { error: insertError } = await supabase.from("product_type_fillings").insert(
+    selected.ids.map((productTypeId) => ({
+      bakery_id: bakeryId,
+      product_type_id: productTypeId,
+      filling_id: fillingId,
+    })),
+  );
+
+  if (insertError) {
+    console.error("replaceFillingProductTypes: insert failed", insertError);
+    return { ok: false, error: "unexpected" };
+  }
+
+  return { ok: true };
+}
+
 function mapWriteError(code: string | undefined): CatalogFormState {
   if (code === "23505") {
     return { status: "error", fieldErrors: { name: "nameTaken" } };
@@ -82,16 +161,47 @@ export async function addCatalogOption(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("catalog_options").insert({
-    bakery_id: access.workspace.bakery.id,
-    kind,
-    name,
-    measurement_mode: kind === "product_type" ? measurementRaw : null,
-  });
+  if (kind === "filling") {
+    const selected = await selectedFillingProductTypeIds(
+      supabase,
+      access.workspace.bakery.id,
+      formData,
+    );
+    if (!selected.ok) {
+      return { status: "error", fieldErrors: { productTypes: selected.error } };
+    }
+  }
 
-  if (error) {
+  const { data: created, error } = await supabase
+    .from("catalog_options")
+    .insert({
+      bakery_id: access.workspace.bakery.id,
+      kind,
+      name,
+      measurement_mode: kind === "product_type" ? measurementRaw : null,
+    })
+    .select("id")
+    .single();
+
+  if (error || !created) {
     console.error("addCatalogOption: insert failed", error);
-    return mapWriteError(error.code);
+    return mapWriteError(error?.code);
+  }
+
+  if (kind === "filling") {
+    const links = await replaceFillingProductTypes(
+      supabase,
+      access.workspace.bakery.id,
+      created.id,
+      formData,
+    );
+    if (!links.ok) {
+      await supabase.from("catalog_options").delete().eq("id", created.id);
+      return {
+        status: "error",
+        fieldErrors: { productTypes: links.error },
+      };
+    }
   }
 
   refreshSettings(locale);
@@ -153,6 +263,21 @@ export async function renameCatalogOption(
 
   if (!data) {
     return { status: "error", formError: "unexpected" };
+  }
+
+  if (existing.kind === "filling") {
+    const links = await replaceFillingProductTypes(
+      supabase,
+      access.workspace.bakery.id,
+      id,
+      formData,
+    );
+    if (!links.ok) {
+      return {
+        status: "error",
+        fieldErrors: { productTypes: links.error },
+      };
+    }
   }
 
   refreshSettings(locale);

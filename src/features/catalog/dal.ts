@@ -7,6 +7,7 @@ import {
   isMeasurementMode,
   type CatalogKind,
   type CatalogOption,
+  type ProductTypeFilling,
 } from "./types";
 
 type CatalogOptionRow = {
@@ -39,6 +40,7 @@ function toOption(row: CatalogOptionRow): CatalogOption | null {
     name: row.name,
     isActive: row.is_active,
     measurementMode,
+    productTypeIds: [],
   };
 }
 
@@ -69,10 +71,48 @@ async function fetchCatalogOptions(
     return [];
   }
 
-  return (data ?? []).flatMap((row) => {
+  const options = (data ?? []).flatMap((row) => {
     const option = toOption(row);
     return option ? [option] : [];
   });
+
+  if (!options.some((option) => option.kind === "filling")) {
+    return options;
+  }
+
+  const links = await listProductTypeFillings(bakeryId);
+  const fillingIds = new Map<string, string[]>();
+  for (const link of links) {
+    const current = fillingIds.get(link.fillingId) ?? [];
+    current.push(link.productTypeId);
+    fillingIds.set(link.fillingId, current);
+  }
+
+  return options.map((option) =>
+    option.kind === "filling"
+      ? { ...option, productTypeIds: fillingIds.get(option.id) ?? [] }
+      : option,
+  );
+}
+
+export async function listProductTypeFillings(
+  bakeryId: string,
+): Promise<ProductTypeFilling[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("product_type_fillings")
+    .select("product_type_id, filling_id")
+    .eq("bakery_id", bakeryId);
+
+  if (error) {
+    console.error("listProductTypeFillings: failed to read compatibility", error);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    productTypeId: row.product_type_id,
+    fillingId: row.filling_id,
+  }));
 }
 
 /** Settings: active and inactive options for the current bakery. */

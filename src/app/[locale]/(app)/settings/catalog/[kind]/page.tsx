@@ -27,6 +27,12 @@ export default async function CatalogKindSettingsPage({
   const workspace = await requireWorkspace(locale);
   const t = await getTranslations("Catalog");
   const options = await listCatalogOptionsByKind(workspace.bakery.id, kind);
+  const productTypes =
+    kind === "filling"
+      ? (await listCatalogOptionsByKind(workspace.bakery.id, "product_type")).filter(
+          (option) => option.isActive,
+        )
+      : [];
   const canManage = canManageCatalog(workspace.role);
   const active = options.filter((option) => option.isActive);
   const inactive = options.filter((option) => !option.isActive);
@@ -38,6 +44,7 @@ export default async function CatalogKindSettingsPage({
         kind={kind}
         canManage={canManage}
         title={t(`kinds.${kind}`)}
+        productTypes={productTypes}
       />
       {active.length === 0 ? (
         <p className="type-body text-muted">{t("emptyActive")}</p>
@@ -47,6 +54,7 @@ export default async function CatalogKindSettingsPage({
             <CatalogOptionRow
               key={`${option.id}-${option.name}`}
               option={option}
+              productTypes={productTypes}
               canManage={canManage}
             />
           ))}
@@ -60,6 +68,7 @@ export default async function CatalogKindSettingsPage({
               <CatalogOptionRow
                 key={`${option.id}-${option.name}`}
                 option={option}
+                productTypes={productTypes}
                 canManage={canManage}
               />
             ))}

@@ -213,9 +213,11 @@ async function ensureCatalogOptions(admin, bakeryId) {
     { kind: "product_type", name: "Bento", measurement_mode: "size_and_weight" },
     { kind: "product_type", name: "Cupcakes", measurement_mode: "quantity" },
     { kind: "product_type", name: "Dessert", measurement_mode: "quantity" },
-    { kind: "filling", name: "Vanilla cream" },
-    { kind: "filling", name: "Chocolate ganache" },
-    { kind: "filling", name: "Berry" },
+    { kind: "filling", name: "Snickers" },
+    { kind: "filling", name: "Red Velvet" },
+    { kind: "filling", name: "Pistachio" },
+    { kind: "filling", name: "Vanilla" },
+    { kind: "filling", name: "Chocolate" },
     { kind: "shape", name: "Round" },
     { kind: "shape", name: "Heart" },
     { kind: "shape", name: "Square" },
@@ -254,6 +256,67 @@ async function ensureCatalogOptions(admin, bakeryId) {
     if (error) {
       fail(`could not set measurement mode for ${name}: ${error.message}`);
     }
+  }
+
+  await ensureProductTypeFillings(admin, bakeryId);
+}
+
+async function ensureProductTypeFillings(admin, bakeryId) {
+  const { data: options, error: optionsError } = await admin
+    .from("catalog_options")
+    .select("id, kind, name")
+    .eq("bakery_id", bakeryId);
+  if (optionsError) {
+    fail(`could not read catalog options for compatibility: ${optionsError.message}`);
+  }
+
+  const productIdByName = new Map(
+    (options ?? [])
+      .filter((row) => row.kind === "product_type")
+      .map((row) => [row.name, row.id]),
+  );
+  const fillingIdByName = new Map(
+    (options ?? [])
+      .filter((row) => row.kind === "filling")
+      .map((row) => [row.name, row.id]),
+  );
+
+  const wanted = [
+    ["Cake", "Snickers"],
+    ["Cake", "Red Velvet"],
+    ["Cake", "Pistachio"],
+    ["Bento", "Snickers"],
+    ["Bento", "Red Velvet"],
+    ["Cupcakes", "Vanilla"],
+    ["Cupcakes", "Chocolate"],
+    ["Cupcakes", "Pistachio"],
+    ["Dessert", "Vanilla"],
+    ["Dessert", "Chocolate"],
+  ];
+
+  const rows = wanted.flatMap(([productName, fillingName]) => {
+    const product_type_id = productIdByName.get(productName);
+    const filling_id = fillingIdByName.get(fillingName);
+    return product_type_id && filling_id
+      ? [{ bakery_id: bakeryId, product_type_id, filling_id }]
+      : [];
+  });
+
+  const { error: deleteError } = await admin
+    .from("product_type_fillings")
+    .delete()
+    .eq("bakery_id", bakeryId);
+  if (deleteError) {
+    fail(`could not reset filling compatibility: ${deleteError.message}`);
+  }
+
+  if (rows.length === 0) {
+    return;
+  }
+
+  const { error: insertError } = await admin.from("product_type_fillings").insert(rows);
+  if (insertError) {
+    fail(`could not insert filling compatibility: ${insertError.message}`);
   }
 }
 
@@ -351,17 +414,17 @@ async function ensureOrders(admin, bakeryId, catalog, byRole) {
     {
       order_id: idByStatus.get("accepted"),
       bakery_id: bakeryId,
-      catalog_option_id: fillingIdByName.get("Vanilla cream"),
+      catalog_option_id: fillingIdByName.get("Snickers"),
     },
     {
       order_id: idByStatus.get("accepted"),
       bakery_id: bakeryId,
-      catalog_option_id: fillingIdByName.get("Berry"),
+      catalog_option_id: fillingIdByName.get("Red Velvet"),
     },
     {
       order_id: idByStatus.get("in_production"),
       bakery_id: bakeryId,
-      catalog_option_id: fillingIdByName.get("Chocolate ganache"),
+      catalog_option_id: fillingIdByName.get("Pistachio"),
     },
   ].filter((row) => row.order_id && row.catalog_option_id);
   if (fillingRows.length > 0) {

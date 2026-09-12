@@ -81,6 +81,9 @@
     "quantityPlaceholder": "12",
     "addFilling": "+ Add filling",
     "removeFilling": "Remove",
+    "selectProductTypeFirst": "Select a product type to choose fillings.",
+    "emptyCompatibleFillings": "No fillings are assigned to this product type.",
+    "fillingsRemoved": "These fillings are not available for the selected product type and were removed: {names}.",
     "pricePlaceholder": "0.00",
     "decorationPlaceholder": "Colours, style, details",
     "inscriptionPlaceholder": "Happy birthday",
@@ -119,6 +122,7 @@
       "prepaymentInvalid": "Enter a valid prepayment of 0 or more.",
       "prepaymentExceedsPrice": "Prepayment cannot exceed the price.",
       "optionUnavailable": "That catalog option is no longer available.",
+      "fillingIncompatible": "That filling is not available for the selected product type.",
       "assigneeInvalid": "Select someone from this bakery.",
       "forbidden": "You do not have permission to create orders.",
       "unexpected": "Something went wrong. Please try again."
@@ -168,6 +172,11 @@
     "measurementMode": "Measured by",
     "productTypeHint": "Each product type says whether new orders collect size and weight, or a piece quantity.",
     "sizeHint": "Optional physical size presets such as diameter or Small / Large. Do not store weight here.",
+    "fillingHint": "Choose which product types may use each filling. One filling can belong to several products.",
+    "availableFor": "Available for",
+    "allProductTypes": "All product types",
+    "noProductTypes": "No product types",
+    "noProductTypesForFilling": "Add a product type before assigning fillings.",
     "measurementModes": {
       "size_and_weight": "Size and weight",
       "quantity": "Quantity in pieces"
@@ -188,6 +197,7 @@
     "errors": {
       "nameRequired": "Enter a name.",
       "modeRequired": "Choose how this product is measured.",
+      "productTypesRequired": "Choose at least one product type.",
       "nameTaken": "An active option with this name already exists.",
       "unexpected": "Something went wrong. Please try again.",
       "forbidden": "You do not have permission to change the catalog."

@@ -9,12 +9,15 @@ import { Label } from "@/components/ui/label";
 import { renameCatalogOption, deactivateCatalogOption } from "../actions";
 import { initialCatalogFormState, type CatalogOption } from "../types";
 import { CatalogMeasurementField } from "./catalog-measurement-field";
+import { CatalogProductTypeAvailability } from "./catalog-product-type-availability";
 
 export function CatalogOptionRow({
   option,
+  productTypes,
   canManage,
 }: {
   option: CatalogOption;
+  productTypes: CatalogOption[];
   canManage: boolean;
 }) {
   const locale = useLocale();
@@ -31,6 +34,9 @@ export function CatalogOptionRow({
       : undefined;
     const modeError = state.fieldErrors?.measurementMode
       ? t(`errors.${state.fieldErrors.measurementMode}`)
+      : undefined;
+    const productTypesError = state.fieldErrors?.productTypes
+      ? t(`errors.${state.fieldErrors.productTypes}`)
       : undefined;
 
     return (
@@ -84,6 +90,13 @@ export function CatalogOptionRow({
               </button>
             </div>
           </div>
+          {option.kind === "filling" ? (
+            <CatalogProductTypeAvailability
+              productTypes={productTypes}
+              defaultSelectedIds={option.productTypeIds}
+              error={productTypesError}
+            />
+          ) : null}
         </form>
       </li>
     );
@@ -104,6 +117,11 @@ export function CatalogOptionRow({
         {option.kind === "product_type" && option.measurementMode ? (
           <p className="type-label pt-1">
             {t(`measurementModes.${option.measurementMode}`)}
+          </p>
+        ) : null}
+        {option.kind === "filling" ? (
+          <p className="type-label pt-1">
+            {availabilityLabel(option, productTypes, t)}
           </p>
         ) : null}
       </div>
@@ -132,4 +150,23 @@ export function CatalogOptionRow({
       ) : null}
     </li>
   );
+}
+
+function availabilityLabel(
+  option: CatalogOption,
+  productTypes: CatalogOption[],
+  t: (key: "allProductTypes" | "noProductTypes") => string,
+) {
+  const active = productTypes.filter((item) => item.isActive);
+  const names = active
+    .filter((item) => option.productTypeIds.includes(item.id))
+    .map((item) => item.name);
+
+  if (names.length === 0) {
+    return t("noProductTypes");
+  }
+  if (active.length > 0 && names.length === active.length) {
+    return t("allProductTypes");
+  }
+  return names.join(" · ");
 }

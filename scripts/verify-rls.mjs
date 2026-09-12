@@ -600,6 +600,171 @@ async function main() {
       productAsFilling.error !== null,
       productAsFilling.error?.code,
     );
+
+    const cakeType = await admin
+      .from("catalog_options")
+      .select("id")
+      .eq("bakery_id", bakeryId)
+      .eq("kind", "product_type")
+      .eq("name", "Cake")
+      .maybeSingle();
+    const pistachio = await admin
+      .from("catalog_options")
+      .select("id")
+      .eq("bakery_id", bakeryId)
+      .eq("kind", "filling")
+      .eq("name", "Pistachio")
+      .maybeSingle();
+    const vanilla = await admin
+      .from("catalog_options")
+      .select("id")
+      .eq("bakery_id", bakeryId)
+      .eq("kind", "filling")
+      .eq("name", "Vanilla")
+      .maybeSingle();
+
+    const cakeFillings = await baker.client
+      .from("product_type_fillings")
+      .select("filling_id")
+      .eq("product_type_id", cakeType.data?.id ?? "00000000-0000-0000-0000-000000000000");
+    check(
+      "one product type can have multiple fillings",
+      (cakeFillings.data ?? []).length >= 2,
+    );
+
+    const pistachioProducts = await baker.client
+      .from("product_type_fillings")
+      .select("product_type_id")
+      .eq("filling_id", pistachio.data?.id ?? "00000000-0000-0000-0000-000000000000");
+    check(
+      "one filling can belong to multiple product types",
+      (pistachioProducts.data ?? []).length >= 2,
+    );
+
+    const bakerAddsCompatibility = await baker.client.from("product_type_fillings").insert({
+      bakery_id: bakeryId,
+      product_type_id: cakeType.data?.id,
+      filling_id: vanilla.data?.id,
+    });
+    check(
+      "baker cannot add product-type filling compatibility",
+      bakerAddsCompatibility.error !== null,
+      bakerAddsCompatibility.error?.code,
+    );
+
+    const bakerReadsCompatibility = await baker.client
+      .from("product_type_fillings")
+      .select("id")
+      .eq("bakery_id", bakeryId);
+    check(
+      "baker can read this bakery's filling compatibility",
+      !bakerReadsCompatibility.error && (bakerReadsCompatibility.data ?? []).length > 0,
+      bakerReadsCompatibility.error?.message,
+    );
+
+    const bakerSeesRivalCompatibility = await baker.client
+      .from("product_type_fillings")
+      .select("id")
+      .eq("bakery_id", rival.bakeryId);
+    check(
+      "baker cannot read another bakery's filling compatibility",
+      (bakerSeesRivalCompatibility.data ?? []).length === 0,
+    );
+
+    const crossCompatibility = await manager.client.from("product_type_fillings").insert({
+      bakery_id: bakeryId,
+      product_type_id: cakeType.data?.id,
+      filling_id: rivalFilling.data?.id,
+    });
+    check(
+      "manager cannot link another bakery's filling to a product type",
+      crossCompatibility.error !== null,
+      crossCompatibility.error?.code,
+    );
+
+    const assignedOrder = await admin
+      .from("orders")
+      .select("id, product_type")
+      .eq("id", assigned.id)
+      .single();
+    const incompatibleFilling = await manager.client.from("order_fillings").insert({
+      bakery_id: bakeryId,
+      order_id: assigned.id,
+      catalog_option_id: vanilla.data?.id,
+    });
+    check(
+      "manager cannot attach a filling that is not compatible with the product type",
+      incompatibleFilling.error !== null && assignedOrder.data?.product_type === "Cake",
+      incompatibleFilling.error?.code,
+    );
+
+    const renameProduct = await manager.client
+      .from("catalog_options")
+      .insert({
+        bakery_id: bakeryId,
+        kind: "product_type",
+        name: "RLS rename cake",
+        measurement_mode: "size_and_weight",
+      })
+      .select("id")
+      .single();
+    const renameFilling = await manager.client
+      .from("catalog_options")
+      .insert({
+        bakery_id: bakeryId,
+        kind: "filling",
+        name: "RLS rename filling",
+      })
+      .select("id")
+      .single();
+    if (renameProduct.data?.id && renameFilling.data?.id) {
+      await manager.client.from("product_type_fillings").insert({
+        bakery_id: bakeryId,
+        product_type_id: renameProduct.data.id,
+        filling_id: renameFilling.data.id,
+      });
+      await manager.client
+        .from("catalog_options")
+        .update({ name: "RLS renamed cake" })
+        .eq("id", renameProduct.data.id);
+      const renamedLinks = await manager.client
+        .from("product_type_fillings")
+        .select("id")
+        .eq("product_type_id", renameProduct.data.id)
+        .eq("filling_id", renameFilling.data.id);
+      check(
+        "rename of a product type does not drop filling compatibility",
+        (renamedLinks.data ?? []).length === 1,
+      );
+
+      const renamedOrder = await manager.client
+        .from("orders")
+        .insert({
+          bakery_id: bakeryId,
+          product_type: "RLS renamed cake",
+          deadline_at: new Date(Date.now() + 86_400_000).toISOString(),
+        })
+        .select("id")
+        .single();
+      const renamedAttach = renamedOrder.data?.id
+        ? await manager.client.from("order_fillings").insert({
+            bakery_id: bakeryId,
+            order_id: renamedOrder.data.id,
+            catalog_option_id: renameFilling.data.id,
+          })
+        : { error: { message: "missing order" } };
+      check(
+        "renamed product type still accepts its assigned fillings",
+        renamedAttach.error == null,
+        renamedAttach.error?.message,
+      );
+      if (renamedOrder.data?.id) {
+        await admin.from("orders").delete().eq("id", renamedOrder.data.id);
+      }
+      await admin.from("catalog_options").delete().eq("id", renameFilling.data.id);
+      await admin.from("catalog_options").delete().eq("id", renameProduct.data.id);
+    }
+
     if (rivalFilling.data?.id) {
       await admin.from("catalog_options").delete().eq("id", rivalFilling.data.id);
     }

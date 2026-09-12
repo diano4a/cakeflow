@@ -42,8 +42,35 @@ export function CreateOrderForm({
   const [fillingIds, setFillingIds] = useState<string[]>(
     values?.fillingIds && values.fillingIds.length > 0 ? values.fillingIds : [""],
   );
+  const [removedFillings, setRemovedFillings] = useState<string[]>([]);
   const selectedProduct = productTypes.find((option) => option.name === productType);
   const measurementMode = selectedProduct?.measurementMode;
+  const compatibleFillings = fillings.filter(
+    (option) =>
+      selectedProduct !== undefined &&
+      option.productTypeIds.includes(selectedProduct.id),
+  );
+
+  function handleProductTypeChange(next: string) {
+    const nextProduct = productTypes.find((option) => option.name === next);
+    const allowed = new Set(
+      fillings
+        .filter(
+          (option) =>
+            nextProduct !== undefined && option.productTypeIds.includes(nextProduct.id),
+        )
+        .map((option) => option.id),
+    );
+    const removed = fillingIds
+      .filter((id) => id && !allowed.has(id))
+      .map((id) => fillings.find((option) => option.id === id)?.name)
+      .filter((name): name is string => Boolean(name));
+    const kept = fillingIds.filter((id) => !id || allowed.has(id));
+
+    setProductType(next);
+    setFillingIds(kept.length > 0 ? kept : [""]);
+    setRemovedFillings(removed);
+  }
 
   return (
     <form action={formAction} className="grid gap-layout" noValidate>
@@ -67,7 +94,7 @@ export function CreateOrderForm({
               name="productType"
               required
               value={productType}
-              onChange={setProductType}
+              onChange={handleProductTypeChange}
               error={
                 state.fieldErrors?.productType
                   ? t(`errors.${state.fieldErrors.productType}`)
@@ -163,13 +190,27 @@ export function CreateOrderForm({
             </Field>
           </Pair>
         ) : null}
-        {fillings.length > 0 ? (
+        {removedFillings.length > 0 ? (
+          <p
+            role="status"
+            className="type-body text-ink border-l-2 border-ink pl-3"
+          >
+            {t("fillingsRemoved", { names: removedFillings.join(", ") })}
+          </p>
+        ) : null}
+        {!selectedProduct && fillings.length > 0 ? (
+          <p className="type-body text-muted">{t("selectProductTypeFirst")}</p>
+        ) : null}
+        {selectedProduct && compatibleFillings.length === 0 && fillings.length > 0 ? (
+          <p className="type-body text-muted">{t("emptyCompatibleFillings")}</p>
+        ) : null}
+        {compatibleFillings.length > 0 ? (
           <div className="grid gap-cluster">
             {fillingIds.map((fillingId, index) => (
               <div key={index} className="grid gap-cluster sm:grid-cols-[1fr_auto] sm:items-start">
                 <CatalogOptionSelect
                   kind="filling"
-                  options={fillings}
+                  options={compatibleFillings}
                   name="fillingId"
                   optionValue="id"
                   id={`order-catalog-filling-${index}`}
