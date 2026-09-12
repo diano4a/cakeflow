@@ -520,9 +520,28 @@ async function main() {
       "baker cannot read another bakery's catalog options",
       (bakerSeesRivalOption.data ?? []).length === 0,
     );
-    if (rivalOption.data?.id) {
-      await admin.from("catalog_options").delete().eq("id", rivalOption.data.id);
-    }
+
+    const rivalCatalogInsert = await owner.client.from("catalog_options").insert({
+      bakery_id: rival.bakeryId,
+      kind: "product_type",
+      name: "Stolen type",
+      measurement_mode: "quantity",
+    });
+    check(
+      "owner cannot write another bakery's catalog",
+      rivalCatalogInsert.error !== null,
+      rivalCatalogInsert.error?.code,
+    );
+
+    const rivalCatalogUpdate = await owner.client
+      .from("catalog_options")
+      .update({ name: "Hijacked cake" })
+      .eq("id", rivalOption.data?.id ?? "00000000-0000-0000-0000-000000000000")
+      .select("id");
+    check(
+      "owner cannot update another bakery's catalog option",
+      (rivalCatalogUpdate.data ?? []).length === 0,
+    );
 
     const rivalFilling = await admin
       .from("catalog_options")
@@ -683,6 +702,17 @@ async function main() {
       crossCompatibility.error?.code,
     );
 
+    const crossProductType = await manager.client.from("product_type_fillings").insert({
+      bakery_id: bakeryId,
+      product_type_id: rivalOption.data?.id,
+      filling_id: vanilla.data?.id,
+    });
+    check(
+      "manager cannot use another bakery's product type in compatibility",
+      crossProductType.error !== null,
+      crossProductType.error?.code,
+    );
+
     const assignedOrder = await admin
       .from("orders")
       .select("id, product_type")
@@ -768,6 +798,9 @@ async function main() {
 
     if (rivalFilling.data?.id) {
       await admin.from("catalog_options").delete().eq("id", rivalFilling.data.id);
+    }
+    if (rivalOption.data?.id) {
+      await admin.from("catalog_options").delete().eq("id", rivalOption.data.id);
     }
 
     const teammates = await baker.client.from("profiles").select("id");
