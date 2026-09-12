@@ -12,6 +12,7 @@ import {
   type CatalogFormState,
   type CatalogKind,
 } from "../types";
+import { CatalogMeasurementField } from "./catalog-measurement-field";
 
 export function CatalogAddForm({
   kind,
@@ -29,6 +30,9 @@ export function CatalogAddForm({
 
   const nameError = state.fieldErrors?.name
     ? t(`errors.${state.fieldErrors.name}`)
+    : undefined;
+  const modeError = state.fieldErrors?.measurementMode
+    ? t(`errors.${state.fieldErrors.measurementMode}`)
     : undefined;
 
   async function submit(formData: FormData) {
@@ -72,6 +76,12 @@ export function CatalogAddForm({
             </p>
           ) : null}
         </div>
+        {kind === "product_type" ? (
+          <CatalogMeasurementField
+            id={`catalog-add-${kind}-mode`}
+            error={modeError}
+          />
+        ) : null}
         <div className="flex shrink-0 items-center gap-cluster">
           <Button type="submit" size="sm" disabled={pending}>
             {pending ? t("addPending") : t("addSubmit")}

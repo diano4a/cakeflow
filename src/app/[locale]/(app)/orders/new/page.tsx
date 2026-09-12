@@ -31,7 +31,7 @@ export default async function NewOrderPage() {
   }));
 
   return (
-    <section className="flex flex-col gap-layout">
+    <section className="brief flex flex-col gap-layout">
       <p className="md:hidden">
         <Link href={ORDERS_PATH} className="type-label hover:text-ink">
           ← {t("back")}

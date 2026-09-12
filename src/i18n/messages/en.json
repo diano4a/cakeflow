@@ -78,16 +78,32 @@
     "submitPending": "Submitting…",
     "assigneeNone": "Unassigned",
     "weightPlaceholder": "2.5",
+    "quantityPlaceholder": "12",
+    "addFilling": "+ Add filling",
+    "removeFilling": "Remove",
     "pricePlaceholder": "0.00",
     "decorationPlaceholder": "Colours, style, details",
+    "inscriptionPlaceholder": "Happy birthday",
     "notesPlaceholder": "Customer or manager notes",
     "emptyProductTypes": "Add a product type in Settings before creating an order.",
     "openCatalog": "Open catalog",
+    "referencesPlaceholder": "Reference images will appear here.",
+    "sections": {
+      "product": "Product",
+      "decoration": "Decoration",
+      "references": "References",
+      "deadline": "Deadline",
+      "payment": "Payment",
+      "details": "Details"
+    },
     "fields": {
       "weight": "Weight (kg)",
+      "quantity": "Quantity",
       "decoration": "Decoration",
       "inscription": "Inscription",
       "deadline": "Deadline",
+      "deadlineDate": "Date",
+      "deadlineTime": "Time",
       "price": "Price",
       "prepayment": "Prepayment",
       "notes": "Notes",
@@ -98,6 +114,7 @@
       "deadlineRequired": "Set a deadline.",
       "deadlineInvalid": "Enter a valid deadline.",
       "weightInvalid": "Enter a valid weight greater than 0.",
+      "quantityInvalid": "Enter a whole number of pieces greater than 0.",
       "priceInvalid": "Enter a valid price of 0 or more.",
       "prepaymentInvalid": "Enter a valid prepayment of 0 or more.",
       "prepaymentExceedsPrice": "Prepayment cannot exceed the price.",
@@ -148,6 +165,13 @@
     "deactivate": "Deactivate",
     "inactive": "Inactive",
     "emptyActive": "No active options yet.",
+    "measurementMode": "Measured by",
+    "productTypeHint": "Each product type says whether new orders collect size and weight, or a piece quantity.",
+    "sizeHint": "Optional physical size presets such as diameter or Small / Large. Do not store weight here.",
+    "measurementModes": {
+      "size_and_weight": "Size and weight",
+      "quantity": "Quantity in pieces"
+    },
     "kinds": {
       "product_type": "Product types",
       "filling": "Fillings",
@@ -163,6 +187,7 @@
     "selectPlaceholder": "Select",
     "errors": {
       "nameRequired": "Enter a name.",
+      "modeRequired": "Choose how this product is measured.",
       "nameTaken": "An active option with this name already exists.",
       "unexpected": "Something went wrong. Please try again.",
       "forbidden": "You do not have permission to change the catalog."

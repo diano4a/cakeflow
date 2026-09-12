@@ -21,7 +21,15 @@ export function CatalogKindHeader({
   return (
     <div className="flex flex-col gap-layout">
       <div className="flex items-baseline justify-between gap-layout">
-        <h1 className="type-heading">{title}</h1>
+        <div className="min-w-0">
+          <h1 className="type-heading">{title}</h1>
+          {kind === "product_type" ? (
+            <p className="type-body text-muted pt-cluster">{t("productTypeHint")}</p>
+          ) : null}
+          {kind === "size" ? (
+            <p className="type-body text-muted pt-cluster">{t("sizeHint")}</p>
+          ) : null}
+        </div>
         {canManage && !adding ? (
           <button
             type="button"

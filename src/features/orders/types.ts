@@ -7,6 +7,7 @@ export type CreateOrderFormState = {
   fieldErrors?: {
     productType?: string;
     filling?: string;
+    quantity?: string;
     shape?: string;
     size?: string;
     weight?: string;
@@ -17,7 +18,8 @@ export type CreateOrderFormState = {
   };
   values?: {
     productType?: string;
-    filling?: string;
+    fillingIds?: string[];
+    quantity?: string;
     shape?: string;
     size?: string;
     weight?: string;

@@ -7,13 +7,22 @@ export const CATALOG_KINDS = [
 
 export type CatalogKind = (typeof CATALOG_KINDS)[number];
 
+export const MEASUREMENT_MODES = ["size_and_weight", "quantity"] as const;
+
+export type MeasurementMode = (typeof MEASUREMENT_MODES)[number];
+
 export type CatalogOption = {
   id: string;
   bakeryId: string;
   kind: CatalogKind;
   name: string;
   isActive: boolean;
+  measurementMode: MeasurementMode | null;
 };
+
+export function isMeasurementMode(value: string): value is MeasurementMode {
+  return (MEASUREMENT_MODES as readonly string[]).includes(value);
+}
 
 /** Values are message keys under `Catalog.errors`. */
 export type CatalogFormState = {
@@ -21,6 +30,7 @@ export type CatalogFormState = {
   formError?: string;
   fieldErrors?: {
     name?: string;
+    measurementMode?: string;
   };
 };
 

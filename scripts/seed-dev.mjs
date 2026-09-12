@@ -209,20 +209,20 @@ async function ensureCatalogOptions(admin, bakeryId) {
   }
 
   const wanted = [
-    { kind: "product_type", name: "Cake" },
-    { kind: "product_type", name: "Bento" },
-    { kind: "product_type", name: "Cupcakes" },
-    { kind: "product_type", name: "Dessert" },
+    { kind: "product_type", name: "Cake", measurement_mode: "size_and_weight" },
+    { kind: "product_type", name: "Bento", measurement_mode: "size_and_weight" },
+    { kind: "product_type", name: "Cupcakes", measurement_mode: "quantity" },
+    { kind: "product_type", name: "Dessert", measurement_mode: "quantity" },
     { kind: "filling", name: "Vanilla cream" },
     { kind: "filling", name: "Chocolate ganache" },
     { kind: "filling", name: "Berry" },
     { kind: "shape", name: "Round" },
     { kind: "shape", name: "Heart" },
     { kind: "shape", name: "Square" },
-    { kind: "size", name: "1 kg" },
-    { kind: "size", name: "1.5 kg" },
-    { kind: "size", name: "2 kg" },
-    { kind: "size", name: "Bento" },
+    { kind: "size", name: "Ø18 cm" },
+    { kind: "size", name: "Ø22 cm" },
+    { kind: "size", name: "Small" },
+    { kind: "size", name: "Large" },
   ];
 
   const missing = wanted.filter(
@@ -235,6 +235,24 @@ async function ensureCatalogOptions(admin, bakeryId) {
     );
     if (error) {
       fail(`could not insert catalog options: ${error.message}`);
+    }
+  }
+
+  const productModes = {
+    Cake: "size_and_weight",
+    Bento: "size_and_weight",
+    Cupcakes: "quantity",
+    Dessert: "quantity",
+  };
+  for (const [name, measurement_mode] of Object.entries(productModes)) {
+    const { error } = await admin
+      .from("catalog_options")
+      .update({ measurement_mode })
+      .eq("bakery_id", bakeryId)
+      .eq("kind", "product_type")
+      .eq("name", name);
+    if (error) {
+      fail(`could not set measurement mode for ${name}: ${error.message}`);
     }
   }
 }
@@ -266,10 +284,9 @@ async function ensureOrders(admin, bakeryId, catalog, byRole) {
       catalog_item_id: catalogIdByName.get("Classic sponge cake"),
       customer_name: "Nino Beridze",
       customer_contact: "+995 555 10 20 30",
-      product_type: "cake",
+      product_type: "Cake",
       weight_kg: 2.5,
       shape: "round",
-      filling: "vanilla cream and strawberries",
       decoration_notes: "Pastel buttercream, fresh berries on top",
       inscription: "Happy Birthday, Ana!",
       deadline_at: daysFromNow(3),
@@ -285,10 +302,9 @@ async function ensureOrders(admin, bakeryId, catalog, byRole) {
       catalog_item_id: catalogIdByName.get("Chocolate tart"),
       customer_name: "Giorgi Kapanadze",
       customer_contact: "giorgi@example.test",
-      product_type: "tart",
+      product_type: "Cake",
       weight_kg: 1.2,
       shape: "round",
-      filling: "dark chocolate ganache",
       decoration_notes: "Matte finish, gold leaf accent",
       deadline_at: daysFromNow(1),
       price: 75,
@@ -301,9 +317,8 @@ async function ensureOrders(admin, bakeryId, catalog, byRole) {
     {
       bakery_id: bakeryId,
       customer_name: "Mariam Tsiklauri",
-      product_type: "cupcakes",
-      size_note: "24 pieces",
-      filling: "lemon curd",
+      product_type: "Cupcakes",
+      quantity: 24,
       decoration_notes: "Two-tone frosting, no nuts",
       deadline_at: daysFromNow(7),
       price: 90,
@@ -322,7 +337,42 @@ async function ensureOrders(admin, bakeryId, catalog, byRole) {
     fail(`could not insert orders: ${error.message}`);
   }
 
+  const { data: fillingOptions, error: fillingOptionsError } = await admin
+    .from("catalog_options")
+    .select("id, name")
+    .eq("bakery_id", bakeryId)
+    .eq("kind", "filling");
+  if (fillingOptionsError) {
+    fail(`could not read fillings: ${fillingOptionsError.message}`);
+  }
+  const fillingIdByName = new Map((fillingOptions ?? []).map((row) => [row.name, row.id]));
   const idByStatus = new Map(data.map((row) => [row.status, row.id]));
+  const fillingRows = [
+    {
+      order_id: idByStatus.get("accepted"),
+      bakery_id: bakeryId,
+      catalog_option_id: fillingIdByName.get("Vanilla cream"),
+    },
+    {
+      order_id: idByStatus.get("accepted"),
+      bakery_id: bakeryId,
+      catalog_option_id: fillingIdByName.get("Berry"),
+    },
+    {
+      order_id: idByStatus.get("in_production"),
+      bakery_id: bakeryId,
+      catalog_option_id: fillingIdByName.get("Chocolate ganache"),
+    },
+  ].filter((row) => row.order_id && row.catalog_option_id);
+  if (fillingRows.length > 0) {
+    const { error: fillingInsertError } = await admin
+      .from("order_fillings")
+      .insert(fillingRows);
+    if (fillingInsertError) {
+      fail(`could not insert order fillings: ${fillingInsertError.message}`);
+    }
+  }
+
   const inProductionOrderId = idByStatus.get("in_production");
   const acceptedOrderId = idByStatus.get("accepted");
   const checklist = [

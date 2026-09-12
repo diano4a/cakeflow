@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { renameCatalogOption, deactivateCatalogOption } from "../actions";
 import { initialCatalogFormState, type CatalogOption } from "../types";
+import { CatalogMeasurementField } from "./catalog-measurement-field";
 
 export function CatalogOptionRow({
   option,
@@ -27,6 +28,9 @@ export function CatalogOptionRow({
   if (editing && canManage) {
     const nameError = state.fieldErrors?.name
       ? t(`errors.${state.fieldErrors.name}`)
+      : undefined;
+    const modeError = state.fieldErrors?.measurementMode
+      ? t(`errors.${state.fieldErrors.measurementMode}`)
       : undefined;
 
     return (
@@ -60,6 +64,13 @@ export function CatalogOptionRow({
                 </p>
               ) : null}
             </div>
+            {option.kind === "product_type" ? (
+              <CatalogMeasurementField
+                id={`catalog-rename-${option.id}-mode`}
+                defaultValue={option.measurementMode}
+                error={modeError}
+              />
+            ) : null}
             <div className="flex shrink-0 items-center gap-cluster">
               <Button type="submit" size="sm" disabled={isPending}>
                 {isPending ? t("renamePending") : t("renameSave")}
@@ -80,15 +91,22 @@ export function CatalogOptionRow({
 
   return (
     <li className="flex flex-col gap-cluster py-cluster sm:flex-row sm:items-center sm:justify-between">
-      <p
-        className={
-          option.isActive
-            ? "type-value min-w-0 truncate"
-            : "type-body text-muted min-w-0 truncate"
-        }
-      >
-        {option.name}
-      </p>
+      <div className="min-w-0">
+        <p
+          className={
+            option.isActive
+              ? "type-value min-w-0 truncate"
+              : "type-body text-muted min-w-0 truncate"
+          }
+        >
+          {option.name}
+        </p>
+        {option.kind === "product_type" && option.measurementMode ? (
+          <p className="type-label pt-1">
+            {t(`measurementModes.${option.measurementMode}`)}
+          </p>
+        ) : null}
+      </div>
       {canManage ? (
         <div className="flex shrink-0 items-center gap-layout">
           <button

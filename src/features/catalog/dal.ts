@@ -2,7 +2,12 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 
-import { isCatalogKind, type CatalogKind, type CatalogOption } from "./types";
+import {
+  isCatalogKind,
+  isMeasurementMode,
+  type CatalogKind,
+  type CatalogOption,
+} from "./types";
 
 type CatalogOptionRow = {
   id: string;
@@ -10,10 +15,20 @@ type CatalogOptionRow = {
   kind: string;
   name: string;
   is_active: boolean;
+  measurement_mode: string | null;
 };
 
 function toOption(row: CatalogOptionRow): CatalogOption | null {
   if (!isCatalogKind(row.kind)) {
+    return null;
+  }
+
+  const measurementMode =
+    row.measurement_mode && isMeasurementMode(row.measurement_mode)
+      ? row.measurement_mode
+      : null;
+
+  if (row.kind === "product_type" && !measurementMode) {
     return null;
   }
 
@@ -23,6 +38,7 @@ function toOption(row: CatalogOptionRow): CatalogOption | null {
     kind: row.kind,
     name: row.name,
     isActive: row.is_active,
+    measurementMode,
   };
 }
 
@@ -34,7 +50,7 @@ async function fetchCatalogOptions(
   const supabase = await createClient();
   let query = supabase
     .from("catalog_options")
-    .select("id, bakery_id, kind, name, is_active")
+    .select("id, bakery_id, kind, name, is_active, measurement_mode")
     .eq("bakery_id", bakeryId)
     .order("created_at", { ascending: true });
 

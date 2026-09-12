@@ -94,13 +94,16 @@ is needed, add a `--text-*` token and a role utility here.
 | `--spacing-control`       | 44px                          | Touch-friendly control height                |
 | `--spacing-control-sm`    | 36px                          | Compact control height                       |
 | `--container-app`         | 72rem                         | Authenticated shell max width                |
+| `--container-brief`       | 40rem                         | Structured brief / form column               |
 | `--container-measure`     | 38ch                          | Wrapped prose measure                        |
 | radius                    | 0                             | Every radius token is zero                   |
 
 Layout and nav sizes are a single `clamp()` each, from a 380px mobile floor to
 a 1280px desktop ceiling, so tablet sits in between rather than jumping at a
 breakpoint. Use `gap-layout`, `px-layout`, `gap-cluster`, `gap-nav` and the
-`frame` utility. Do not add one-off gaps or max-widths in feature components.
+`frame` and `brief` utilities. Do not add one-off gaps or max-widths in
+feature components. Use `brief` for structured production forms so short
+fields do not stretch across the full app frame.
 
 Separator utilities: `hairline-t`, `hairline-b`, `hairline-y`, `divider-t`,
 `divider-b`. The `frame` utility centers content at `--container-app`.

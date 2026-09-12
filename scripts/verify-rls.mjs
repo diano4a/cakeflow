@@ -438,6 +438,20 @@ async function main() {
       bakerInsertOption.error?.code,
     );
 
+    const productWithoutMode = await manager.client
+      .from("catalog_options")
+      .insert({
+        bakery_id: bakeryId,
+        kind: "product_type",
+        name: "RLS product without mode",
+      })
+      .select("id");
+    check(
+      "product type requires a measurement mode",
+      productWithoutMode.error !== null,
+      productWithoutMode.error?.code,
+    );
+
     const managerOption = await manager.client
       .from("catalog_options")
       .insert({
@@ -493,6 +507,7 @@ async function main() {
         bakery_id: rival.bakeryId,
         kind: "product_type",
         name: "Rival cake",
+        measurement_mode: "size_and_weight",
       })
       .select("id")
       .single();
@@ -506,6 +521,87 @@ async function main() {
     );
     if (rivalOption.data?.id) {
       await admin.from("catalog_options").delete().eq("id", rivalOption.data.id);
+    }
+
+    const rivalFilling = await admin
+      .from("catalog_options")
+      .insert({
+        bakery_id: rival.bakeryId,
+        kind: "filling",
+        name: "Rival filling",
+      })
+      .select("id")
+      .single();
+    const ownFilling = await admin
+      .from("catalog_options")
+      .select("id")
+      .eq("bakery_id", bakeryId)
+      .eq("kind", "filling")
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
+
+    const crossFilling = await manager.client.from("order_fillings").insert({
+      bakery_id: bakeryId,
+      order_id: assigned.id,
+      catalog_option_id: rivalFilling.data?.id,
+    });
+    check(
+      "manager cannot attach another bakery's filling to an order",
+      crossFilling.error !== null,
+      crossFilling.error?.code,
+    );
+
+    const bakerAddsFilling = await baker.client.from("order_fillings").insert({
+      bakery_id: bakeryId,
+      order_id: assigned.id,
+      catalog_option_id: ownFilling.data?.id,
+    });
+    check(
+      "baker cannot add an order filling",
+      bakerAddsFilling.error !== null,
+      bakerAddsFilling.error?.code,
+    );
+
+    const bakerFillings = await baker.client
+      .from("order_fillings")
+      .select("id")
+      .eq("bakery_id", bakeryId);
+    check(
+      "baker can read this bakery's order fillings",
+      !bakerFillings.error,
+      bakerFillings.error?.message,
+    );
+
+    const bakerSeesRivalFillings = await baker.client
+      .from("order_fillings")
+      .select("id")
+      .eq("bakery_id", rival.bakeryId);
+    check(
+      "baker cannot read another bakery's order fillings",
+      (bakerSeesRivalFillings.data ?? []).length === 0,
+    );
+
+    const ownProductType = await admin
+      .from("catalog_options")
+      .select("id")
+      .eq("bakery_id", bakeryId)
+      .eq("kind", "product_type")
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
+    const productAsFilling = await manager.client.from("order_fillings").insert({
+      bakery_id: bakeryId,
+      order_id: assigned.id,
+      catalog_option_id: ownProductType.data?.id,
+    });
+    check(
+      "manager cannot attach a non-filling catalog option to an order",
+      productAsFilling.error !== null,
+      productAsFilling.error?.code,
+    );
+    if (rivalFilling.data?.id) {
+      await admin.from("catalog_options").delete().eq("id", rivalFilling.data.id);
     }
 
     const teammates = await baker.client.from("profiles").select("id");

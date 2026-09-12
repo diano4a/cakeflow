@@ -78,16 +78,32 @@
     "submitPending": "Надсилання…",
     "assigneeNone": "Без виконавця",
     "weightPlaceholder": "2.5",
+    "quantityPlaceholder": "12",
+    "addFilling": "+ Додати начинку",
+    "removeFilling": "Прибрати",
     "pricePlaceholder": "0.00",
     "decorationPlaceholder": "Кольори, стиль, деталі",
+    "inscriptionPlaceholder": "З днем народження",
     "notesPlaceholder": "Нотатки клієнта або менеджера",
     "emptyProductTypes": "Додайте тип виробу в Налаштуваннях, перш ніж створювати замовлення.",
     "openCatalog": "Відкрити каталог",
+    "referencesPlaceholder": "Тут з'являться референсні зображення.",
+    "sections": {
+      "product": "Виріб",
+      "decoration": "Оформлення",
+      "references": "Референси",
+      "deadline": "Дедлайн",
+      "payment": "Оплата",
+      "details": "Деталі"
+    },
     "fields": {
       "weight": "Вага (кг)",
+      "quantity": "Кількість",
       "decoration": "Оформлення",
       "inscription": "Напис",
       "deadline": "Дедлайн",
+      "deadlineDate": "Дата",
+      "deadlineTime": "Час",
       "price": "Ціна",
       "prepayment": "Передоплата",
       "notes": "Нотатки",
@@ -98,6 +114,7 @@
       "deadlineRequired": "Вкажіть дедлайн.",
       "deadlineInvalid": "Вкажіть коректний дедлайн.",
       "weightInvalid": "Вкажіть вагу більшу за 0.",
+      "quantityInvalid": "Вкажіть цілу кількість штук більшу за 0.",
       "priceInvalid": "Вкажіть ціну 0 або більше.",
       "prepaymentInvalid": "Вкажіть передоплату 0 або більше.",
       "prepaymentExceedsPrice": "Передоплата не може перевищувати ціну.",
@@ -148,6 +165,13 @@
     "deactivate": "Деактивувати",
     "inactive": "Неактивний",
     "emptyActive": "Ще немає активних варіантів.",
+    "measurementMode": "Вимір",
+    "productTypeHint": "Кожен тип виробу визначає, чи нове замовлення збирає розмір і вагу, чи кількість штук.",
+    "sizeHint": "Необов'язкові фізичні розміри, наприклад діаметр або Малий / Великий. Вагу тут не зберігайте.",
+    "measurementModes": {
+      "size_and_weight": "Розмір і вага",
+      "quantity": "Кількість штук"
+    },
     "kinds": {
       "product_type": "Типи виробів",
       "filling": "Начинки",
@@ -163,6 +187,7 @@
     "selectPlaceholder": "Оберіть",
     "errors": {
       "nameRequired": "Вкажіть назву.",
+      "modeRequired": "Оберіть, як вимірюється цей виріб.",
       "nameTaken": "Активний варіант з такою назвою уже є.",
       "unexpected": "Щось пішло не так. Спробуйте ще раз.",
       "forbidden": "У вас немає права змінювати каталог."

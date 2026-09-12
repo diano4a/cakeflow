@@ -10,7 +10,12 @@ import { getCurrentUser } from "@/lib/auth/dal";
 import { SIGN_IN_PATH } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 
-import { canManageCatalog, isCatalogKind, type CatalogFormState } from "./types";
+import {
+  canManageCatalog,
+  isCatalogKind,
+  isMeasurementMode,
+  type CatalogFormState,
+} from "./types";
 
 function readLocale(formData: FormData) {
   const value = String(formData.get("locale") ?? "");
@@ -71,11 +76,17 @@ export async function addCatalogOption(
     return { status: "error", fieldErrors: { name: "nameRequired" } };
   }
 
+  const measurementRaw = String(formData.get("measurementMode") ?? "").trim();
+  if (kind === "product_type" && !isMeasurementMode(measurementRaw)) {
+    return { status: "error", fieldErrors: { measurementMode: "modeRequired" } };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.from("catalog_options").insert({
     bakery_id: access.workspace.bakery.id,
     kind,
     name,
+    measurement_mode: kind === "product_type" ? measurementRaw : null,
   });
 
   if (error) {
@@ -107,9 +118,29 @@ export async function renameCatalogOption(
   }
 
   const supabase = await createClient();
+  const { data: existing, error: existingError } = await supabase
+    .from("catalog_options")
+    .select("kind")
+    .eq("id", id)
+    .eq("bakery_id", access.workspace.bakery.id)
+    .maybeSingle();
+
+  if (existingError || !existing || !isCatalogKind(existing.kind)) {
+    return { status: "error", formError: "unexpected" };
+  }
+
+  const measurementRaw = String(formData.get("measurementMode") ?? "").trim();
+  if (existing.kind === "product_type" && !isMeasurementMode(measurementRaw)) {
+    return { status: "error", fieldErrors: { measurementMode: "modeRequired" } };
+  }
+
   const { data, error } = await supabase
     .from("catalog_options")
-    .update({ name })
+    .update({
+      name,
+      measurement_mode:
+        existing.kind === "product_type" ? measurementRaw : null,
+    })
     .eq("id", id)
     .eq("bakery_id", access.workspace.bakery.id)
     .select("id")

@@ -89,6 +89,10 @@
   /* Wrapped prose sits in the 36–40ch editorial measure. */
   --container-measure: 38ch;
 
+  /* Structured brief / form column. Wide enough for paired short fields,
+     narrow enough that a 1600px display does not stretch inputs. */
+  --container-brief: 40rem;
+
   /* Authenticated app frame. Wide enough for desktop work, capped so a
      1600px+ display does not stretch the sheet edge-to-edge. */
   --container-app: 72rem;
@@ -230,6 +234,13 @@
   width: 100%;
   max-width: var(--container-app);
   margin-inline: auto;
+}
+
+/* Structured production brief / form column. Caps field width without
+   centering, so the sheet stays left-aligned in the app frame. */
+@utility brief {
+  width: 100%;
+  max-width: var(--container-brief);
 }
 
 /* ---------------------------------------------------------------------------

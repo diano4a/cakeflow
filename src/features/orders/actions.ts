@@ -27,16 +27,34 @@ function readText(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+function readDeadline(formData: FormData) {
+  const date = readText(formData, "deadlineDate");
+  const time = readText(formData, "deadlineTime");
+  return date && time ? `${date}T${time}` : "";
+}
+
+function readFillingIds(formData: FormData) {
+  return [
+    ...new Set(
+      formData
+        .getAll("fillingId")
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+    ),
+  ];
+}
+
 function snapshot(formData: FormData): CreateOrderFormState["values"] {
   return {
     productType: readText(formData, "productType"),
-    filling: readText(formData, "filling"),
+    fillingIds: readFillingIds(formData),
+    quantity: readText(formData, "quantity"),
     shape: readText(formData, "shape"),
     size: readText(formData, "size"),
     weight: readText(formData, "weight"),
     decoration: readText(formData, "decoration"),
     inscription: readText(formData, "inscription"),
-    deadline: readText(formData, "deadline"),
+    deadline: readDeadline(formData),
     price: readText(formData, "price"),
     prepayment: readText(formData, "prepayment"),
     notes: readText(formData, "notes"),
@@ -79,6 +97,17 @@ function parseAmount(
   return { kind: "value", value: parsed };
 }
 
+function parseQuantity(raw: string) {
+  const value = raw.trim();
+  if (!value) {
+    return { kind: "empty" as const };
+  }
+  if (!/^[1-9]\d{0,5}$/.test(value)) {
+    return { kind: "invalid" as const };
+  }
+  return { kind: "value" as const, value: Number(value) };
+}
+
 function namesForKind(
   options: { kind: string; name: string }[],
   kind: string,
@@ -110,10 +139,10 @@ export async function createOrder(
   const intent: OrderIntent = intentRaw === "submit" ? "submit" : "draft";
 
   const productType = readText(formData, "productType");
-  const filling = readText(formData, "filling");
+  const fillingIds = readFillingIds(formData);
   const shape = readText(formData, "shape");
   const size = readText(formData, "size");
-  const deadlineRaw = readText(formData, "deadline");
+  const deadlineRaw = readDeadline(formData);
   const assigneeId = readText(formData, "assignee");
   const decoration = readText(formData, "decoration");
   const inscription = readText(formData, "inscription");
@@ -122,37 +151,52 @@ export async function createOrder(
   const fieldErrors: CreateOrderFormState["fieldErrors"] = {};
 
   const catalog = await listCatalogOptionsForOrder(workspace.bakery.id);
-  const productNames = namesForKind(catalog, "product_type");
-  const fillingNames = namesForKind(catalog, "filling");
+  const product = catalog.find(
+    (option) => option.kind === "product_type" && option.name === productType,
+  );
+  const fillingIdsAllowed = new Set(
+    catalog.filter((option) => option.kind === "filling").map((option) => option.id),
+  );
   const shapeNames = namesForKind(catalog, "shape");
   const sizeNames = namesForKind(catalog, "size");
 
   if (!productType) {
     fieldErrors.productType = "productRequired";
-  } else if (!productNames.has(productType)) {
+  } else if (!product?.measurementMode) {
     fieldErrors.productType = "optionUnavailable";
   }
 
-  if (filling && !fillingNames.has(filling)) {
+  if (fillingIds.some((id) => !fillingIdsAllowed.has(id))) {
     fieldErrors.filling = "optionUnavailable";
   }
   if (shape && !shapeNames.has(shape)) {
     fieldErrors.shape = "optionUnavailable";
   }
-  if (size && !sizeNames.has(size)) {
-    fieldErrors.size = "optionUnavailable";
-  }
 
+  const deadlineDate = readText(formData, "deadlineDate");
+  const deadlineTime = readText(formData, "deadlineTime");
   const deadline = parseKyivDateTime(deadlineRaw);
-  if (!deadlineRaw) {
+  if (!deadlineDate && !deadlineTime) {
     fieldErrors.deadline = "deadlineRequired";
-  } else if (!deadline) {
+  } else if (!deadlineRaw || !deadline) {
     fieldErrors.deadline = "deadlineInvalid";
   }
 
+  const mode = product?.measurementMode;
   const weightParsed = parseAmount(readText(formData, "weight"), 3);
-  if (weightParsed.kind === "invalid" || (weightParsed.kind === "value" && weightParsed.value <= 0)) {
-    fieldErrors.weight = "weightInvalid";
+  const quantityParsed = parseQuantity(readText(formData, "quantity"));
+
+  if (mode === "size_and_weight") {
+    if (size && !sizeNames.has(size)) {
+      fieldErrors.size = "optionUnavailable";
+    }
+    if (weightParsed.kind === "invalid" || (weightParsed.kind === "value" && weightParsed.value <= 0)) {
+      fieldErrors.weight = "weightInvalid";
+    }
+  } else if (mode === "quantity") {
+    if (quantityParsed.kind !== "value") {
+      fieldErrors.quantity = "quantityInvalid";
+    }
   }
 
   const priceParsed = parseAmount(readText(formData, "price"), 2);
@@ -185,35 +229,62 @@ export async function createOrder(
     return fail(formData, fieldErrors);
   }
 
-  if (!deadline) {
+  if (!product?.measurementMode || !deadline) {
     return fail(formData, { deadline: "deadlineInvalid" });
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("orders").insert({
-    bakery_id: workspace.bakery.id,
-    product_type: productType,
-    filling: filling || null,
-    shape: shape || null,
-    size_note: size || null,
-    weight_kg: weightParsed.kind === "value" ? weightParsed.value : null,
-    decoration_notes: decoration || null,
-    inscription: inscription || null,
-    deadline_at: deadline.toISOString(),
-    price,
-    prepayment,
-    manager_notes: notes || null,
-    assignee_id: assigneeId || null,
-    created_by: user.id,
-    status: intent === "submit" ? "submitted" : "draft",
-  });
+  const savedMode = product.measurementMode;
 
-  if (error) {
+  const supabase = await createClient();
+  const { data: created, error } = await supabase
+    .from("orders")
+    .insert({
+      bakery_id: workspace.bakery.id,
+      product_type: productType,
+      shape: shape || null,
+      size_note: savedMode === "size_and_weight" && size ? size : null,
+      weight_kg:
+        savedMode === "size_and_weight" && weightParsed.kind === "value"
+          ? weightParsed.value
+          : null,
+      quantity: savedMode === "quantity" && quantityParsed.kind === "value"
+        ? quantityParsed.value
+        : null,
+      decoration_notes: decoration || null,
+      inscription: inscription || null,
+      deadline_at: deadline.toISOString(),
+      price,
+      prepayment,
+      manager_notes: notes || null,
+      assignee_id: assigneeId || null,
+      created_by: user.id,
+      status: intent === "submit" ? "submitted" : "draft",
+    })
+    .select("id")
+    .single();
+
+  if (error || !created) {
     console.error("createOrder: insert failed", error);
-    if (error.code === "23514") {
+    if (error?.code === "23514") {
       return fail(formData, { prepayment: "prepaymentExceedsPrice" });
     }
     return fail(formData, {}, "unexpected");
+  }
+
+  if (fillingIds.length > 0) {
+    const { error: fillingError } = await supabase.from("order_fillings").insert(
+      fillingIds.map((catalogOptionId) => ({
+        bakery_id: workspace.bakery.id,
+        order_id: created.id,
+        catalog_option_id: catalogOptionId,
+      })),
+    );
+
+    if (fillingError) {
+      console.error("createOrder: fillings insert failed", fillingError);
+      await supabase.from("orders").delete().eq("id", created.id);
+      return fail(formData, { filling: "optionUnavailable" });
+    }
   }
 
   revalidatePath(`/${locale}${ORDERS_PATH}`);
