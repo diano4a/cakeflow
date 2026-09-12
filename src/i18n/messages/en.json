@@ -90,7 +90,28 @@
     "notesPlaceholder": "Customer or manager notes",
     "emptyProductTypes": "Add a product type in Settings before creating an order.",
     "openCatalog": "Open catalog",
-    "referencesPlaceholder": "Reference images will appear here.",
+    "empty": "No orders yet.",
+    "detailDescription": "Production details and reference images for this order.",
+    "referencesEmpty": "No reference images yet.",
+    "referencesHint": "JPEG, PNG, WebP or GIF. Up to 8 images, 5 MB each.",
+    "addReferences": "+ Add images",
+    "removeReference": "Remove",
+    "referencesUpload": "Upload images",
+    "referencesUploading": "Uploading…",
+    "referencesLimitReached": "This order already has the maximum number of reference images.",
+    "openReference": "Open reference image {index}",
+    "closeReference": "Close",
+    "referenceViewer": "Reference image",
+    "referencePosition": "{current} of {total}",
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "accepted": "Accepted",
+      "in_production": "In production",
+      "ready": "Ready",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
     "sections": {
       "product": "Product",
       "decoration": "Decoration",
@@ -110,7 +131,8 @@
       "price": "Price",
       "prepayment": "Prepayment",
       "notes": "Notes",
-      "assignee": "Assignee"
+      "assignee": "Assignee",
+      "status": "Status"
     },
     "errors": {
       "productRequired": "Select a product type.",
@@ -125,7 +147,12 @@
       "fillingIncompatible": "That filling is not available for the selected product type.",
       "assigneeInvalid": "Select someone from this bakery.",
       "forbidden": "You do not have permission to create orders.",
-      "unexpected": "Something went wrong. Please try again."
+      "unexpected": "Something went wrong. Please try again.",
+      "referenceRequired": "Choose at least one image.",
+      "referenceInvalid": "Use a JPEG, PNG, WebP or GIF image.",
+      "referenceTooLarge": "Each image must be 5 MB or smaller.",
+      "referenceTooMany": "An order can have up to 8 reference images.",
+      "referenceUploadFailed": "The images could not be uploaded. Try again."
     }
   },
   "Production": {

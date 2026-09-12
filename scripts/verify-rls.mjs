@@ -803,6 +803,91 @@ async function main() {
       await admin.from("catalog_options").delete().eq("id", rivalOption.data.id);
     }
 
+    console.log("\nOrder reference storage");
+
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJTU5ErkJggg==",
+      "base64",
+    );
+    const ownPath = `${bakeryId}/${assigned.id}/${crypto.randomUUID()}.png`;
+    const rivalPath = `${rival.bakeryId}/${rival.orderId}/${crypto.randomUUID()}.png`;
+
+    const managerUpload = await manager.client.storage
+      .from("order-references")
+      .upload(ownPath, png, { contentType: "image/png", upsert: false });
+    check(
+      "manager can upload a reference image",
+      !managerUpload.error,
+      managerUpload.error?.message,
+    );
+
+    if (!managerUpload.error) {
+      const { error: rowError } = await manager.client.from("order_references").insert({
+        bakery_id: bakeryId,
+        order_id: assigned.id,
+        kind: "image",
+        storage_path: ownPath,
+      });
+      check(
+        "manager can attach a reference row to an order",
+        !rowError,
+        rowError?.message,
+      );
+    }
+
+    const bakerUpload = await baker.client.storage
+      .from("order-references")
+      .upload(`${bakeryId}/${assigned.id}/${crypto.randomUUID()}.png`, png, {
+        contentType: "image/png",
+        upsert: false,
+      });
+    check(
+      "baker cannot upload a reference image",
+      bakerUpload.error !== null,
+      bakerUpload.error?.message,
+    );
+
+    const bakerRead = await baker.client.storage
+      .from("order-references")
+      .download(ownPath);
+    check(
+      "baker can read this bakery's reference image",
+      bakerRead.error == null,
+      bakerRead.error?.message,
+    );
+
+    const adminRivalUpload = await admin.storage
+      .from("order-references")
+      .upload(rivalPath, png, { contentType: "image/png", upsert: false });
+    if (adminRivalUpload.error) {
+      fail(`could not seed a rival reference object: ${adminRivalUpload.error.message}`);
+    }
+
+    const crossRead = await baker.client.storage
+      .from("order-references")
+      .download(rivalPath);
+    check(
+      "baker cannot read another bakery's reference image",
+      crossRead.error !== null,
+      crossRead.error?.message,
+    );
+
+    const crossUpload = await manager.client.storage
+      .from("order-references")
+      .upload(
+        `${rival.bakeryId}/${rival.orderId}/${crypto.randomUUID()}.png`,
+        png,
+        { contentType: "image/png", upsert: false },
+      );
+    check(
+      "manager cannot upload into another bakery's folder",
+      crossUpload.error !== null,
+      crossUpload.error?.message,
+    );
+
+    await admin.storage.from("order-references").remove([ownPath, rivalPath]);
+    await admin.from("order_references").delete().eq("storage_path", ownPath);
+
     const teammates = await baker.client.from("profiles").select("id");
     check(
       "baker sees only teammate profiles, not the outsider",

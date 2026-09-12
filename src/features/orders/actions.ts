@@ -15,10 +15,17 @@ import { redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
 import { parseKyivDateTime } from "./deadline";
+import { storeOrderReferences } from "./reference-storage";
+import {
+  ORDER_REFERENCE_BUCKET,
+  readReferenceFiles,
+  validateReferenceFiles,
+} from "./references";
 import {
   canCreateOrder,
   type CreateOrderFormState,
   type OrderIntent,
+  type OrderReferenceFormState,
 } from "./types";
 
 function readLocale(formData: FormData) {
@@ -235,6 +242,12 @@ export async function createOrder(
     }
   }
 
+  const referenceFiles = readReferenceFiles(formData);
+  const referenceError = validateReferenceFiles(referenceFiles);
+  if (referenceError) {
+    fieldErrors.references = referenceError;
+  }
+
   if (Object.keys(fieldErrors).length > 0) {
     return fail(formData, fieldErrors);
   }
@@ -297,6 +310,129 @@ export async function createOrder(
     }
   }
 
+  if (referenceFiles.length > 0) {
+    const uploadError = await storeOrderReferences(
+      supabase,
+      workspace.bakery.id,
+      created.id,
+      referenceFiles,
+    );
+    if (uploadError) {
+      await supabase.from("orders").delete().eq("id", created.id);
+      return fail(formData, { references: uploadError });
+    }
+  }
+
   revalidatePath(`/${locale}${ORDERS_PATH}`);
-  return redirect({ href: ORDERS_PATH, locale });
+  revalidatePath(`/${locale}${ORDERS_PATH}/${created.id}`);
+  return redirect({ href: `${ORDERS_PATH}/${created.id}`, locale });
+}
+
+export async function addOrderReferences(
+  _previous: OrderReferenceFormState,
+  formData: FormData,
+): Promise<OrderReferenceFormState> {
+  const locale = readLocale(formData);
+  const user = await getCurrentUser();
+  if (!user) {
+    return redirect({ href: SIGN_IN_PATH, locale });
+  }
+
+  const workspace = await getCurrentWorkspace();
+  if (!workspace || !canCreateOrder(workspace.role)) {
+    return { status: "error", formError: "forbidden" };
+  }
+
+  const orderId = readText(formData, "orderId");
+  const files = readReferenceFiles(formData);
+  if (!orderId) {
+    return { status: "error", formError: "unexpected" };
+  }
+  if (files.length === 0) {
+    return { status: "error", formError: "referenceRequired" };
+  }
+
+  const supabase = await createClient();
+  const { count, error: countError } = await supabase
+    .from("order_references")
+    .select("id", { count: "exact", head: true })
+    .eq("bakery_id", workspace.bakery.id)
+    .eq("order_id", orderId);
+
+  if (countError) {
+    console.error("addOrderReferences: failed to count references", countError);
+    return { status: "error", formError: "unexpected" };
+  }
+
+  const validationError = validateReferenceFiles(files, count ?? 0);
+  if (validationError) {
+    return { status: "error", formError: validationError };
+  }
+
+  const uploadError = await storeOrderReferences(
+    supabase,
+    workspace.bakery.id,
+    orderId,
+    files,
+  );
+  if (uploadError) {
+    return { status: "error", formError: uploadError };
+  }
+
+  revalidatePath(`/${locale}${ORDERS_PATH}/${orderId}`);
+  return redirect({ href: `${ORDERS_PATH}/${orderId}`, locale });
+}
+
+export async function removeOrderReference(formData: FormData) {
+  const locale = readLocale(formData);
+  const user = await getCurrentUser();
+  if (!user) {
+    return redirect({ href: SIGN_IN_PATH, locale });
+  }
+
+  const workspace = await getCurrentWorkspace();
+  if (!workspace || !canCreateOrder(workspace.role)) {
+    return redirect({ href: ORDERS_PATH, locale });
+  }
+
+  const orderId = readText(formData, "orderId");
+  const referenceId = readText(formData, "referenceId");
+  if (!orderId || !referenceId) {
+    return redirect({ href: ORDERS_PATH, locale });
+  }
+
+  const supabase = await createClient();
+  const { data: existing, error: readError } = await supabase
+    .from("order_references")
+    .select("id, storage_path")
+    .eq("id", referenceId)
+    .eq("order_id", orderId)
+    .eq("bakery_id", workspace.bakery.id)
+    .maybeSingle();
+
+  if (readError || !existing) {
+    return redirect({ href: `${ORDERS_PATH}/${orderId}`, locale });
+  }
+
+  if (existing.storage_path) {
+    const { error: storageError } = await supabase.storage
+      .from(ORDER_REFERENCE_BUCKET)
+      .remove([existing.storage_path]);
+    if (storageError) {
+      console.error("removeOrderReference: storage delete failed", storageError);
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from("order_references")
+    .delete()
+    .eq("id", existing.id)
+    .eq("bakery_id", workspace.bakery.id);
+
+  if (deleteError) {
+    console.error("removeOrderReference: row delete failed", deleteError);
+  }
+
+  revalidatePath(`/${locale}${ORDERS_PATH}/${orderId}`);
+  return redirect({ href: `${ORDERS_PATH}/${orderId}`, locale });
 }

@@ -90,7 +90,28 @@
     "notesPlaceholder": "Нотатки клієнта або менеджера",
     "emptyProductTypes": "Додайте тип виробу в Налаштуваннях, перш ніж створювати замовлення.",
     "openCatalog": "Відкрити каталог",
-    "referencesPlaceholder": "Тут з'являться референсні зображення.",
+    "empty": "Замовлень ще немає.",
+    "detailDescription": "Деталі виробництва та референсні зображення цього замовлення.",
+    "referencesEmpty": "Референсних зображень ще немає.",
+    "referencesHint": "JPEG, PNG, WebP або GIF. До 8 зображень, до 5 МБ кожне.",
+    "addReferences": "+ Додати зображення",
+    "removeReference": "Прибрати",
+    "referencesUpload": "Завантажити зображення",
+    "referencesUploading": "Завантаження…",
+    "referencesLimitReached": "У цього замовлення вже максимум референсних зображень.",
+    "openReference": "Відкрити референс {index}",
+    "closeReference": "Закрити",
+    "referenceViewer": "Референсне зображення",
+    "referencePosition": "{current} з {total}",
+    "statuses": {
+      "draft": "Чернетка",
+      "submitted": "Передано",
+      "accepted": "Прийнято",
+      "in_production": "У виробництві",
+      "ready": "Готово",
+      "completed": "Завершено",
+      "cancelled": "Скасовано"
+    },
     "sections": {
       "product": "Виріб",
       "decoration": "Оформлення",
@@ -110,7 +131,8 @@
       "price": "Ціна",
       "prepayment": "Передоплата",
       "notes": "Нотатки",
-      "assignee": "Виконавець"
+      "assignee": "Виконавець",
+      "status": "Статус"
     },
     "errors": {
       "productRequired": "Оберіть тип виробу.",
@@ -125,7 +147,12 @@
       "fillingIncompatible": "Ця начинка недоступна для обраного типу виробу.",
       "assigneeInvalid": "Оберіть учасника цієї кондитерської.",
       "forbidden": "У вас немає права створювати замовлення.",
-      "unexpected": "Щось пішло не так. Спробуйте ще раз."
+      "unexpected": "Щось пішло не так. Спробуйте ще раз.",
+      "referenceRequired": "Оберіть хоча б одне зображення.",
+      "referenceInvalid": "Використайте зображення JPEG, PNG, WebP або GIF.",
+      "referenceTooLarge": "Кожне зображення має бути не більше 5 МБ.",
+      "referenceTooMany": "У замовлення може бути до 8 референсних зображень.",
+      "referenceUploadFailed": "Не вдалося завантажити зображення. Спробуйте ще раз."
     }
   },
   "Production": {

@@ -15,6 +15,7 @@ export type CreateOrderFormState = {
     price?: string;
     prepayment?: string;
     assignee?: string;
+    references?: string;
   };
   values?: {
     productType?: string;
@@ -34,6 +35,15 @@ export type CreateOrderFormState = {
 };
 
 export const initialCreateOrderFormState: CreateOrderFormState = {
+  status: "idle",
+};
+
+export type OrderReferenceFormState = {
+  status: "idle" | "error";
+  formError?: string;
+};
+
+export const initialOrderReferenceFormState: OrderReferenceFormState = {
   status: "idle",
 };
 

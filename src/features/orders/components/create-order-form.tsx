@@ -14,6 +14,7 @@ import { Link } from "@/i18n/navigation";
 
 import { createOrder } from "../actions";
 import { initialCreateOrderFormState } from "../types";
+import { OrderReferenceFields } from "./order-reference-fields";
 
 const selectClassName =
   "type-value h-control w-full min-w-0 border-0 border-b border-hairline bg-transparent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink focus-visible:border-b-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:text-muted aria-invalid:divider-b [&:has(option[value='']:checked)]:text-muted";
@@ -43,6 +44,7 @@ export function CreateOrderForm({
     values?.fillingIds && values.fillingIds.length > 0 ? values.fillingIds : [""],
   );
   const [removedFillings, setRemovedFillings] = useState<string[]>([]);
+  const [referenceFiles, setReferenceFiles] = useState<File[]>([]);
   const selectedProduct = productTypes.find((option) => option.name === productType);
   const measurementMode = selectedProduct?.measurementMode;
   const compatibleFillings = fillings.filter(
@@ -72,8 +74,15 @@ export function CreateOrderForm({
     setRemovedFillings(removed);
   }
 
+  function submit(formData: FormData) {
+    for (const file of referenceFiles) {
+      formData.append("reference", file);
+    }
+    formAction(formData);
+  }
+
   return (
-    <form action={formAction} className="grid gap-layout" noValidate>
+    <form action={submit} className="grid gap-layout" noValidate>
       <input type="hidden" name="locale" value={locale} />
 
       {state.formError ? (
@@ -272,7 +281,11 @@ export function CreateOrderForm({
       </FormSection>
 
       <FormSection label={t("sections.references")}>
-        <p className="type-body text-muted">{t("referencesPlaceholder")}</p>
+        <OrderReferenceFields
+          files={referenceFiles}
+          onChange={setReferenceFiles}
+          error={state.fieldErrors?.references}
+        />
       </FormSection>
 
       <FormSection label={t("sections.deadline")}>
