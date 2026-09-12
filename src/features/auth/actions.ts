@@ -6,9 +6,11 @@ import { redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import {
   APP_HOME_PATH,
+  ONBOARDING_PATH,
   SIGN_IN_PATH,
   isProtectedPath,
 } from "@/lib/auth/routes";
+import { ensureOwnProfile } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 
 import { MIN_PASSWORD_LENGTH, type AuthFormState } from "./types";
@@ -97,6 +99,8 @@ export async function signIn(
     };
   }
 
+  await ensureOwnProfile();
+
   return redirect({
     href: safeRedirectPath(formData.get("redirectTo")),
     locale,
@@ -142,7 +146,9 @@ export async function signUp(
     return { status: "confirmation-required" };
   }
 
-  return redirect({ href: APP_HOME_PATH, locale });
+  await ensureOwnProfile(fullName);
+
+  return redirect({ href: ONBOARDING_PATH, locale });
 }
 
 export async function signOut(formData: FormData) {

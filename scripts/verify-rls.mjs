@@ -190,6 +190,7 @@ async function main() {
     .from("bakeries")
     .select("id")
     .eq("name", BAKERY_NAME)
+    .eq("owner_id", owner.id)
     .maybeSingle();
   if (bakeryError || !bakery) {
     fail(`demo bakery not found. Run \`npm run seed:dev\` first.`);

@@ -4,7 +4,7 @@ import { hasLocale } from "next-intl";
 
 import { redirect } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { getCurrentUser } from "@/lib/auth/dal";
+import { ensureOwnProfile, getCurrentUser } from "@/lib/auth/dal";
 import { APP_HOME_PATH, SIGN_IN_PATH } from "@/lib/auth/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,12 +32,18 @@ export async function createBakery(
     return redirect({ href: APP_HOME_PATH, locale });
   }
 
+  // Display name only: spaces and Cyrillic are valid. Do not treat this as a slug.
   const name = String(formData.get("name") ?? "").trim();
   if (!name) {
     return {
       status: "error",
       fieldErrors: { name: "nameRequired" },
     };
+  }
+
+  const profileReady = await ensureOwnProfile();
+  if (!profileReady) {
+    return { status: "error", formError: "unexpected" };
   }
 
   const supabase = await createClient();
