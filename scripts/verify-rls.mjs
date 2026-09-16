@@ -885,6 +885,29 @@ async function main() {
       crossUpload.error?.message,
     );
 
+    const bakerDeletesObject = await baker.client.storage
+      .from("order-references")
+      .remove([ownPath]);
+    const bakerStillHasFile = await baker.client.storage
+      .from("order-references")
+      .download(ownPath);
+    check(
+      "baker cannot delete a reference image",
+      bakerStillHasFile.error == null,
+      bakerDeletesObject.error?.message ?? bakerStillHasFile.error?.message,
+    );
+
+    const bakerDeletesRow = await baker.client
+      .from("order_references")
+      .delete()
+      .eq("storage_path", ownPath)
+      .select("id");
+    check(
+      "baker cannot delete a reference row",
+      (bakerDeletesRow.data ?? []).length === 0,
+      bakerDeletesRow.error?.message,
+    );
+
     await admin.storage.from("order-references").remove([ownPath, rivalPath]);
     await admin.from("order_references").delete().eq("storage_path", ownPath);
 
