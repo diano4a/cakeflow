@@ -2,7 +2,8 @@
 
 CakeFlow uses strict editorial minimalism: a calm technical-spec / recipe-sheet
 aesthetic rather than a generic SaaS dashboard. Structure, typography and
-spacing create hierarchy — never color, elevation or decoration.
+spacing create hierarchy. Hue is reserved for a small, documented semantic
+status exception.
 
 `src/app/globals.css` is the implementation of this document and the single
 source of truth for values. Feature components consume tokens and role
@@ -10,12 +11,16 @@ utilities; they never declare palette values or font families.
 
 ## Rules
 
-- Monochrome only. No accent or brand colors.
+- Monochrome, except for defined semantic status indicators.
+- No generic accent or brand colors.
 - No gradients, no shadows, no elevation.
-- No rounded corners and no boxed dashboard cards.
-- Hairline separators instead of decorative containers.
+- No rounded corners, except the 8px circular status dot.
+- No boxed SaaS dashboard widgets. Operational order cards use a square
+  hairline frame on `paper`, never a shadow or a colored fill.
+- Hairline separators for lists, specs and group headings.
 - Square controls.
-- Status is communicated through text and weight, not hue.
+- Status meaning is always written as text. Color on the status dot is
+  supplementary scanning aid, never the only encoding.
 
 ## Colors
 
@@ -28,12 +33,43 @@ utilities; they never declare palette values or font families.
 | `hairline`       | `#E2E1DC` | 1px separators and input underlines      |
 | `tile`           | `#EEEDE8` | Hover and selected surfaces              |
 
-These six hex values appear exactly once in the codebase, in the `@theme`
-block of `globals.css`. Use the Tailwind utilities they generate — `bg-page`,
-`text-ink`, `border-hairline`, `bg-tile` and so on.
+These six core hex values appear in the `@theme` block of `globals.css`. Use
+the Tailwind utilities they generate — `bg-page`, `text-ink`, `border-hairline`,
+`bg-tile` and so on.
 
 `muted` is a text color in CakeFlow, unlike the shadcn convention where
 `muted` is a surface. Do not use `bg-muted`.
+
+### Semantic status colors
+
+CakeFlow remains monochrome except for these operational indicators. They
+exist only as `--color-status-*` tokens in `globals.css`. Use `bg-status-*`
+on `StatusDot`. Do not hardcode the hex values in feature components.
+
+| Token                         | Value     | Meaning                                      |
+| ----------------------------- | --------- | -------------------------------------------- |
+| `status-draft`                | `#8A7460` | Warm taupe — draft                           |
+| `status-submitted`            | `#C4A35A` | Muted ochre — submitted                      |
+| `status-accepted`             | `#C08A3E` | Muted amber — accepted                       |
+| `status-in-production`        | `#C46A3A` | Terracotta — in production                   |
+| `status-ready`                | `#6D8A63` | Muted green — ready                          |
+| `status-completed`            | `#8A8A86` | Neutral grey — completed                     |
+| `status-cancelled`            | `#8A4F45` | Muted red-brown — cancelled                  |
+| `status-overdue`              | `#B54A42` | Muted red — deadline is overdue              |
+
+`overdue` is a deadline condition, not a stored order status. An overdue
+order keeps its real lifecycle status in text; the indicator may use the
+overdue token.
+
+Do not use status color for:
+
+- the whole card
+- badges, pills or backgrounds
+- buttons or navigation
+- decorative rules
+
+The `status-dot` utility is the only circular geometry in the system
+(`border-radius: 50%`). Shared `--radius-*` tokens remain `0`.
 
 ## Typography
 
@@ -96,6 +132,7 @@ is needed, add a `--text-*` token and a role utility here.
 | `--container-app`         | 72rem                         | Authenticated shell max width                |
 | `--container-brief`       | 40rem                         | Structured brief / form column               |
 | `--container-measure`     | 38ch                          | Wrapped prose measure                        |
+| `--size-order-card`       | 15rem                         | Orders card auto-fill minimum                |
 | radius                    | 0                             | Every radius token is zero                   |
 
 Layout and nav sizes are a single `clamp()` each, from a 380px mobile floor to
@@ -107,6 +144,9 @@ fields do not stretch across the full app frame.
 
 Separator utilities: `hairline-t`, `hairline-b`, `hairline-y`, `divider-t`,
 `divider-b`. The `frame` utility centers content at `--container-app`.
+`order-card-grid` lays out operational order cards with
+`repeat(auto-fill, minmax(min(100%, var(--size-order-card)), 1fr))`, so 380px
+is one column, tablet is typically 2–3, and the app frame holds 3–4.
 
 ## Primitives
 
@@ -130,7 +170,9 @@ animated zoom survives.
   still share that column so values align. Below `sm` the pair stacks.
 - `PageHeader` — title and description as one cluster, used at the top of
   app screens. Section content follows with `gap-layout`.
-- `StatusText` — status through weight and case; no pills, no status colors.
+- `StatusText` — status through weight and case; no pills, no colored labels.
+- `StatusDot` — 8px circular indicator using `status-*` tokens. Color is a
+  scanning aid only; the textual status remains required.
 
 Shared primitives never contain user-facing copy. Labels are passed in already
 translated, so everything stays compatible with next-intl (`uk` and `en`).

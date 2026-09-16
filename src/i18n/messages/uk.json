@@ -103,6 +103,8 @@
     "deleteDraftConfirm": "Видалити чернетку",
     "deleteDraftCancel": "Скасувати",
     "draftDeleted": "Чернетку видалено.",
+    "overdue": "Прострочено",
+    "orderCount": "{count, plural, one {# замовлення} few {# замовлення} many {# замовлень} other {# замовлення}}",
     "measurement": {
       "kg": "{value} кг",
       "pcs": "{count} шт"

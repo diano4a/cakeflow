@@ -10,13 +10,13 @@ Never hardcode palette colors in feature components.
 Visual language:
 
 - editorial minimalism
-- monochrome only
-- no accent colors
+- monochrome, except defined semantic status indicators
+- no generic accent colors
 - no gradients
 - no shadows
-- no rounded cards
-- no SaaS dashboard card grids
-- hairline separators instead of boxed cards
+- no rounded cards (order cards are square hairline frames)
+- no SaaS dashboard widgets
+- hairline separators for lists and specs; operational order cards use a square hairline border without elevation
 
 Typography:
 
@@ -32,6 +32,9 @@ Use semantic design tokens:
 - muted
 - hairline
 - tile
+- status-* (draft, submitted, accepted, in-production, ready, completed, cancelled, overdue)
+
+Semantic status colors may only be used for the small circular status indicator (and overdue urgency). They must not replace textual status labels, and must not spread into buttons, navigation, card fills or decoration.
 
 Spacing:
 

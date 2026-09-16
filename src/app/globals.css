@@ -17,13 +17,25 @@
    --------------------------------------------------------------------------- */
 
 @theme {
-  /* Palette. These six hex values are the only ones in the codebase. */
+  /* Core palette. Feature components never hardcode these values. */
   --color-page: #edece7;
   --color-paper: #f7f6f2;
   --color-ink: #161616;
   --color-muted: #9a9a97;
   --color-hairline: #e2e1dc;
   --color-tile: #eeede8;
+
+  /* Semantic status indicators. The only intentional exception to CakeFlow
+     monochrome: small circular dots for operational status/urgency. Never
+     use these for buttons, navigation, card fills or decoration. */
+  --color-status-draft: #8a7460;
+  --color-status-submitted: #c4a35a;
+  --color-status-accepted: #c08a3e;
+  --color-status-in-production: #c46a3a;
+  --color-status-ready: #6d8a63;
+  --color-status-completed: #8a8a86;
+  --color-status-cancelled: #8a4f45;
+  --color-status-overdue: #b54a42;
 
   /* Font roles. Onest covers Ukrainian Cyrillic for UI/prose; Archivo is
      display/order-number only; JetBrains Mono covers Cyrillic for data. */
@@ -96,6 +108,10 @@
   /* Authenticated app frame. Wide enough for desktop work, capped so a
      1600px+ display does not stretch the sheet edge-to-edge. */
   --container-app: 72rem;
+
+  /* Orders workspace cards: auto-fill floor so 380px stays one column,
+     tablet lands on 2–3, and the app frame holds 3–4. */
+  --size-order-card: 15rem;
 }
 
 /* Border widths are not a Tailwind theme namespace, so they live here and are
@@ -266,4 +282,23 @@
 
 @utility divider-b {
   border-bottom: var(--divider-width) solid var(--color-ink);
+}
+
+/* The only circular geometry in CakeFlow: an 8px semantic status indicator.
+   Radius tokens stay 0 everywhere else. */
+@utility status-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+@utility order-card-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, var(--size-order-card)), 1fr)
+  );
+  gap: var(--spacing-layout);
 }

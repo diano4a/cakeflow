@@ -32,3 +32,20 @@ export async function formatTime(value: string | Date) {
     timeStyle: "short",
   });
 }
+
+export async function formatDateShort(value: string | Date) {
+  const format = await getFormatter();
+
+  return format.dateTime(new Date(value), {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+export async function formatDeadlineLine(value: string | Date) {
+  const [date, time] = await Promise.all([
+    formatDateShort(value),
+    formatTime(value),
+  ]);
+  return `${date} · ${time}`;
+}

@@ -13,8 +13,8 @@ type StatusTextProps = {
 };
 
 /**
- * Status is communicated through typography weight and case rather than
- * color, so there are no pills and no status palette.
+ * Status is communicated through typography weight and case. Hue belongs
+ * only to the small `StatusDot` indicator, never to this label.
  */
 export function StatusText({
   children,

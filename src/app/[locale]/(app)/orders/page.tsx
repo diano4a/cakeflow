@@ -3,21 +3,26 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireWorkspace } from "@/features/bakery/dal";
-import { OrderRow, formatMeasurementSummary } from "@/features/orders/components/order-row";
+import {
+  OrderCard,
+  formatMeasurementSummary,
+} from "@/features/orders/components/order-card";
 import { OrdersFilters } from "@/features/orders/components/orders-filters";
 import { listOrders } from "@/features/orders/dal";
 import { BAKERY_TIME_ZONE } from "@/features/orders/deadline";
 import {
   buildOrdersList,
+  isOverdueOrder,
   measurementParts,
   parseDateFilter,
   parseListError,
   parseListNotice,
   parseStatusFilter,
+  type ListOrder,
   type ProductionGroup,
 } from "@/features/orders/list";
 import { canCreateOrder, canManageDrafts, isOrderStatus } from "@/features/orders/types";
-import { formatDateHeading, formatTime } from "@/i18n/format";
+import { formatDateHeading, formatDeadlineLine } from "@/i18n/format";
 import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/dal";
 import { ORDERS_NEW_PATH, ORDERS_PATH } from "@/lib/auth/routes";
@@ -55,6 +60,28 @@ function groupHeading(
   return dateLabel;
 }
 
+async function presentOrder(
+  order: ListOrder,
+  t: Awaited<ReturnType<typeof getTranslations>>,
+  now: Date,
+) {
+  return {
+    order,
+    deadlineLabel: order.deadlineAt
+      ? await formatDeadlineLine(order.deadlineAt)
+      : null,
+    measurement: formatMeasurementSummary(measurementParts(order), {
+      kg: (value) => t("measurement.kg", { value }),
+      pcs: (count) => t("measurement.pcs", { count }),
+    }),
+    numberLabel: t("orderNumber", { number: order.orderNumber }),
+    statusLabel: isOrderStatus(order.status)
+      ? t(`statuses.${order.status}`)
+      : order.status,
+    overdue: isOverdueOrder(order, now, BAKERY_TIME_ZONE),
+  };
+}
+
 export default async function OrdersPage({
   searchParams,
 }: PageProps<"/[locale]/orders">) {
@@ -69,13 +96,9 @@ export default async function OrdersPage({
   const date = parseDateFilter(firstString(params.date));
   const notice = parseListNotice(firstString(params.notice));
   const listError = parseListError(firstString(params.error));
+  const now = new Date();
   const orders = await listOrders(workspace.bakery.id);
-  const model = buildOrdersList(
-    orders,
-    { status, date },
-    new Date(),
-    BAKERY_TIME_ZONE,
-  );
+  const model = buildOrdersList(orders, { status, date }, now, BAKERY_TIME_ZONE);
   const filters = { status, date };
   const resetHref = ORDERS_PATH;
 
@@ -86,34 +109,17 @@ export default async function OrdersPage({
         ? await formatDateHeading(headingInstant(group.ymd))
         : null,
       orders: await Promise.all(
-        group.orders.map(async (order) => ({
-          order,
-          timeLabel: order.deadlineAt ? await formatTime(order.deadlineAt) : null,
-          measurement: formatMeasurementSummary(measurementParts(order), {
-            kg: (value) => t("measurement.kg", { value }),
-            pcs: (count) => t("measurement.pcs", { count }),
-          }),
-          numberLabel: t("orderNumber", { number: order.orderNumber }),
-          statusLabel: isOrderStatus(order.status)
-            ? t(`statuses.${order.status}`)
-            : order.status,
-        })),
+        group.orders.map((order) => presentOrder(order, t, now)),
       ),
     })),
   );
 
   const drafts = await Promise.all(
-    model.drafts.map(async (order) => ({
-      order,
-      timeLabel: order.deadlineAt ? await formatTime(order.deadlineAt) : null,
-      measurement: formatMeasurementSummary(measurementParts(order), {
-        kg: (value) => t("measurement.kg", { value }),
-        pcs: (count) => t("measurement.pcs", { count }),
-      }),
-      numberLabel: t("orderNumber", { number: order.orderNumber }),
-      statusLabel: t("statuses.draft"),
-    })),
+    model.drafts.map((order) => presentOrder(order, t, now)),
   );
+  const visibleCount =
+    groups.reduce((total, group) => total + group.orders.length, 0) +
+    drafts.length;
 
   return (
     <section className="flex flex-col gap-layout">
@@ -134,7 +140,11 @@ export default async function OrdersPage({
       ) : null}
 
       {model.emptyKind !== "bakery" ? (
-        <OrdersFilters status={status} date={date} />
+        <OrdersFilters
+          status={status}
+          date={date}
+          countLabel={t("orderCount", { count: visibleCount })}
+        />
       ) : null}
 
       {model.emptyKind === "bakery" ? (
@@ -184,24 +194,31 @@ export default async function OrdersPage({
       {model.emptyKind === "none" ? (
         <div className="flex flex-col gap-layout">
           {groups.map((group) => (
-            <section key={group.key} className="flex flex-col">
-              <h2 className="type-label divider-b pb-cluster">
-                {groupHeading(group, group.dateLabel, {
-                  today: t("groups.today"),
-                  tomorrow: t("groups.tomorrow"),
-                  overdue: t("groups.overdue"),
-                  none: t("groups.none"),
-                })}
-              </h2>
-              <div>
+            <section key={group.key} className="flex flex-col gap-layout">
+              <div className="divider-b flex items-baseline justify-between gap-layout pb-cluster">
+                <h2 className="type-label">
+                  {groupHeading(group, group.dateLabel, {
+                    today: t("groups.today"),
+                    tomorrow: t("groups.tomorrow"),
+                    overdue: t("groups.overdue"),
+                    none: t("groups.none"),
+                  })}
+                </h2>
+                <p className="type-label">
+                  {t("orderCount", { count: group.orders.length })}
+                </p>
+              </div>
+              <div className="order-card-grid">
                 {group.orders.map((row) => (
-                  <OrderRow
+                  <OrderCard
                     key={row.order.id}
                     order={row.order}
                     statusLabel={row.statusLabel}
-                    timeLabel={row.timeLabel}
+                    deadlineLabel={row.deadlineLabel}
                     measurement={row.measurement}
                     numberLabel={row.numberLabel}
+                    overdue={row.overdue}
+                    overdueLabel={t("overdue")}
                     canManageDrafts={canManage}
                     filters={filters}
                     labels={{
@@ -218,19 +235,24 @@ export default async function OrdersPage({
           ))}
 
           {drafts.length > 0 ? (
-            <section className="flex flex-col">
-              <h2 className="type-label divider-b pb-cluster">
-                {t("groups.drafts")}
-              </h2>
-              <div>
+            <section className="flex flex-col gap-layout">
+              <div className="divider-b flex items-baseline justify-between gap-layout pb-cluster">
+                <h2 className="type-label">{t("groups.drafts")}</h2>
+                <p className="type-label">
+                  {t("orderCount", { count: drafts.length })}
+                </p>
+              </div>
+              <div className="order-card-grid">
                 {drafts.map((row) => (
-                  <OrderRow
+                  <OrderCard
                     key={row.order.id}
                     order={row.order}
                     statusLabel={row.statusLabel}
-                    timeLabel={row.timeLabel}
+                    deadlineLabel={row.deadlineLabel}
                     measurement={row.measurement}
                     numberLabel={row.numberLabel}
+                    overdue={false}
+                    overdueLabel={t("overdue")}
                     canManageDrafts={canManage}
                     filters={filters}
                     labels={{

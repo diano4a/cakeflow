@@ -178,6 +178,14 @@ export function dateGroupRelative(
   return "future";
 }
 
+export function isOverdueOrder(
+  order: Pick<ListOrder, "deadlineAt" | "status">,
+  now: Date,
+  timeZone: string,
+) {
+  return matchesDateFilter(order, "overdue", now, timeZone);
+}
+
 export function matchesDateFilter(
   order: Pick<ListOrder, "deadlineAt" | "status">,
   filter: DateFilter,

@@ -6,6 +6,7 @@ import {
   bakeryCalendarDate,
   buildOrdersList,
   dateGroupRelative,
+  isOverdueOrder,
   matchesDateFilter,
   measurementParts,
   ordersListQuery,
@@ -106,6 +107,8 @@ describe("date filter matching", () => {
     assert.equal(matchesDateFilter(overdue, "overdue", now, TZ), true);
     assert.equal(matchesDateFilter(completed, "overdue", now, TZ), false);
     assert.equal(matchesDateFilter(draft, "overdue", now, TZ), false);
+    assert.equal(isOverdueOrder(overdue, now, TZ), true);
+    assert.equal(isOverdueOrder(completed, now, TZ), false);
   });
 
   it("includes this ISO week and excludes next week", () => {

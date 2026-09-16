@@ -103,6 +103,8 @@
     "deleteDraftConfirm": "Delete draft",
     "deleteDraftCancel": "Cancel",
     "draftDeleted": "Draft deleted.",
+    "overdue": "Overdue",
+    "orderCount": "{count, plural, one {# order} other {# orders}}",
     "measurement": {
       "kg": "{value} kg",
       "pcs": "{count} pcs"

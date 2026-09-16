@@ -29,7 +29,11 @@ export function DeleteDraftDialog({
         type="button"
         className="type-body inline-flex min-h-control items-center underline decoration-hairline underline-offset-4 hover:decoration-ink focus-visible:bg-tile"
         aria-haspopup="dialog"
-        onClick={() => dialogRef.current?.showModal()}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          dialogRef.current?.showModal();
+        }}
       >
         {t("deleteDraft")}
       </button>
