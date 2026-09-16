@@ -6,46 +6,81 @@ import {
   ORDER_REFERENCE_BUCKET,
   type OrderReference,
 } from "./references";
+import type { ListOrder } from "./list";
 
-export type OrderListItem = {
-  id: string;
-  productType: string;
-  status: string;
-  deadlineAt: string;
-};
+export type OrderListItem = ListOrder;
 
-export type OrderDetail = OrderListItem & {
+export type OrderDetail = Omit<ListOrder, "assigneeName" | "updatedAt" | "deadlineAt"> & {
   bakeryId: string;
+  deadlineAt: string;
   shape: string | null;
-  sizeNote: string | null;
-  weightKg: number | null;
-  quantity: number | null;
   decorationNotes: string | null;
   inscription: string | null;
   price: number | null;
   prepayment: number;
   managerNotes: string | null;
+  updatedAt: string;
+  assigneeName: string | null;
 };
 
-export async function listOrders(bakeryId: string): Promise<OrderListItem[]> {
+type ProfileName = { full_name: string | null };
+
+type OrderRow = {
+  id: string;
+  bakery_id?: string;
+  order_number: number;
+  product_type: string;
+  status: string;
+  deadline_at: string;
+  updated_at: string;
+  quantity: number | null;
+  weight_kg: number | string | null;
+  size_note: string | null;
+  shape?: string | null;
+  decoration_notes?: string | null;
+  inscription?: string | null;
+  price?: number | string | null;
+  prepayment?: number | string;
+  manager_notes?: string | null;
+  profiles: ProfileName | ProfileName[] | null;
+};
+
+function profileName(profiles: OrderRow["profiles"]): string | null {
+  const profile = Array.isArray(profiles) ? profiles[0] : profiles;
+  const name = profile?.full_name?.trim();
+  return name ? name : null;
+}
+
+function toListItem(row: OrderRow): ListOrder {
+  return {
+    id: row.id,
+    orderNumber: row.order_number,
+    productType: row.product_type,
+    status: row.status,
+    deadlineAt: row.deadline_at,
+    updatedAt: row.updated_at,
+    quantity: row.quantity,
+    weightKg: row.weight_kg === null ? null : Number(row.weight_kg),
+    sizeNote: row.size_note,
+    assigneeName: profileName(row.profiles),
+  };
+}
+
+export async function listOrders(bakeryId: string): Promise<ListOrder[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("orders")
-    .select("id, product_type, status, deadline_at")
-    .eq("bakery_id", bakeryId)
-    .order("deadline_at", { ascending: true });
+    .select(
+      "id, order_number, product_type, status, deadline_at, updated_at, quantity, weight_kg, size_note, profiles!assignee_id(full_name)",
+    )
+    .eq("bakery_id", bakeryId);
 
   if (error) {
     console.error("listOrders: failed to read orders", error);
     return [];
   }
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    productType: row.product_type,
-    status: row.status,
-    deadlineAt: row.deadline_at,
-  }));
+  return (data ?? []).map((row) => toListItem(row as OrderRow));
 }
 
 export async function getOrder(
@@ -56,7 +91,7 @@ export async function getOrder(
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, bakery_id, product_type, status, deadline_at, shape, size_note, weight_kg, quantity, decoration_notes, inscription, price, prepayment, manager_notes",
+      "id, bakery_id, order_number, product_type, status, deadline_at, updated_at, shape, size_note, weight_kg, quantity, decoration_notes, inscription, price, prepayment, manager_notes, profiles!assignee_id(full_name)",
     )
     .eq("bakery_id", bakeryId)
     .eq("id", orderId)
@@ -70,21 +105,19 @@ export async function getOrder(
     return null;
   }
 
+  const row = data as OrderRow;
+  const list = toListItem(row);
+
   return {
-    id: data.id,
-    bakeryId: data.bakery_id,
-    productType: data.product_type,
-    status: data.status,
-    deadlineAt: data.deadline_at,
-    shape: data.shape,
-    sizeNote: data.size_note,
-    weightKg: data.weight_kg === null ? null : Number(data.weight_kg),
-    quantity: data.quantity,
-    decorationNotes: data.decoration_notes,
-    inscription: data.inscription,
-    price: data.price === null ? null : Number(data.price),
-    prepayment: Number(data.prepayment),
-    managerNotes: data.manager_notes,
+    ...list,
+    bakeryId: row.bakery_id ?? bakeryId,
+    deadlineAt: row.deadline_at,
+    shape: row.shape ?? null,
+    decorationNotes: row.decoration_notes ?? null,
+    inscription: row.inscription ?? null,
+    price: row.price == null ? null : Number(row.price),
+    prepayment: Number(row.prepayment ?? 0),
+    managerNotes: row.manager_notes ?? null,
   };
 }
 

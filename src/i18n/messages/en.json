@@ -68,7 +68,7 @@
   "Orders": {
     "title": "Orders",
     "placeholder": "Orders for this bakery will appear here.",
-    "new": "+ New order",
+    "new": "New order",
     "createTitle": "New order",
     "createDescription": "Turn a customer request into a structured order for production.",
     "back": "Orders",
@@ -91,6 +91,39 @@
     "emptyProductTypes": "Add a product type in Settings before creating an order.",
     "openCatalog": "Open catalog",
     "empty": "No orders yet.",
+    "emptyFiltered": "No orders match these filters.",
+    "emptyDrafts": "There are no drafts.",
+    "resetFilters": "Clear filters",
+    "orderNumber": "#{number}",
+    "openOrder": "Open order #{number}, {product}",
+    "editDraft": "Edit",
+    "deleteDraft": "Delete",
+    "deleteDraftTitle": "Delete draft",
+    "deleteDraftBody": "{order} will be deleted permanently.",
+    "deleteDraftConfirm": "Delete draft",
+    "deleteDraftCancel": "Cancel",
+    "draftDeleted": "Draft deleted.",
+    "measurement": {
+      "kg": "{value} kg",
+      "pcs": "{count} pcs"
+    },
+    "filters": {
+      "status": "Status",
+      "date": "Deadline",
+      "allStatuses": "All statuses",
+      "allDates": "All dates",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "week": "This week",
+      "overdue": "Overdue"
+    },
+    "groups": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "overdue": "Overdue",
+      "none": "No deadline",
+      "drafts": "Drafts"
+    },
     "detailDescription": "Production details and reference images for this order.",
     "referencesEmpty": "No reference images yet.",
     "referencesHint": "JPEG, PNG, WebP or GIF. Up to 8 images, 5 MB each.",
@@ -152,7 +185,11 @@
       "referenceInvalid": "Use a JPEG, PNG, WebP or GIF image.",
       "referenceTooLarge": "Each image must be 5 MB or smaller.",
       "referenceTooMany": "An order can have up to 8 reference images.",
-      "referenceUploadFailed": "The images could not be uploaded. Try again."
+      "referenceUploadFailed": "The images could not be uploaded. Try again.",
+      "deleteForbidden": "You do not have permission to delete drafts.",
+      "deleteNotDraft": "Only drafts can be deleted.",
+      "deleteFailed": "The draft could not be deleted. Try again.",
+      "notFound": "That order could not be found."
     }
   },
   "Production": {

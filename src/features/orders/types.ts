@@ -47,6 +47,26 @@ export const initialOrderReferenceFormState: OrderReferenceFormState = {
   status: "idle",
 };
 
+export const ORDER_STATUSES = [
+  "draft",
+  "submitted",
+  "accepted",
+  "in_production",
+  "ready",
+  "completed",
+  "cancelled",
+] as const;
+
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export function isOrderStatus(value: string): value is OrderStatus {
+  return (ORDER_STATUSES as readonly string[]).includes(value);
+}
+
 export function canCreateOrder(role: string): boolean {
   return role === "owner" || role === "manager";
+}
+
+export function canManageDrafts(role: string): boolean {
+  return canCreateOrder(role);
 }

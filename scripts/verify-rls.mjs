@@ -945,6 +945,182 @@ async function main() {
         .delete()
         .eq("id", managerAddsBaker.data[0].id);
     }
+
+    console.log("\nDraft deletion is bakery-scoped and draft-only");
+
+    const pngDraft = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJTU5ErkJggg==",
+      "base64",
+    );
+
+    const { data: draftOrder, error: draftOrderError } = await admin
+      .from("orders")
+      .insert({
+        bakery_id: bakeryId,
+        product_type: "Bento",
+        deadline_at: new Date(Date.now() + 86_400_000).toISOString(),
+        status: "draft",
+      })
+      .select("id")
+      .single();
+    if (draftOrderError || !draftOrder) {
+      fail(`could not create a draft for deletion tests: ${draftOrderError?.message}`);
+    }
+
+    const draftPath = `${bakeryId}/${draftOrder.id}/${crypto.randomUUID()}.png`;
+    const draftUpload = await manager.client.storage
+      .from("order-references")
+      .upload(draftPath, pngDraft, { contentType: "image/png", upsert: false });
+    if (draftUpload.error) {
+      fail(`could not upload a draft reference: ${draftUpload.error.message}`);
+    }
+    const { error: draftRefError } = await manager.client.from("order_references").insert({
+      bakery_id: bakeryId,
+      order_id: draftOrder.id,
+      kind: "image",
+      storage_path: draftPath,
+    });
+    if (draftRefError) {
+      fail(`could not attach a draft reference: ${draftRefError.message}`);
+    }
+
+    const bakerDeletesDraft = await baker.client
+      .from("orders")
+      .delete()
+      .eq("id", draftOrder.id)
+      .select("id");
+    check(
+      "baker cannot delete a draft",
+      (bakerDeletesDraft.data ?? []).length === 0,
+      bakerDeletesDraft.error?.message,
+    );
+
+    const { data: submittedOrder, error: submittedOrderError } = await admin
+      .from("orders")
+      .insert({
+        bakery_id: bakeryId,
+        product_type: "Cake",
+        deadline_at: new Date(Date.now() + 86_400_000).toISOString(),
+        status: "submitted",
+      })
+      .select("id")
+      .single();
+    if (submittedOrderError || !submittedOrder) {
+      fail(`could not create a submitted order: ${submittedOrderError?.message}`);
+    }
+
+    const managerDeletesSubmitted = await manager.client
+      .from("orders")
+      .delete()
+      .eq("id", submittedOrder.id)
+      .select("id");
+    check(
+      "manager cannot hard-delete a submitted order",
+      (managerDeletesSubmitted.data ?? []).length === 0,
+      managerDeletesSubmitted.error?.message,
+    );
+
+    const { data: rivalDraft, error: rivalDraftError } = await admin
+      .from("orders")
+      .insert({
+        bakery_id: rival.bakeryId,
+        product_type: "Cake",
+        deadline_at: new Date(Date.now() + 86_400_000).toISOString(),
+        status: "draft",
+      })
+      .select("id")
+      .single();
+    if (rivalDraftError || !rivalDraft) {
+      fail(`could not create a rival draft: ${rivalDraftError?.message}`);
+    }
+
+    const managerDeletesRivalDraft = await manager.client
+      .from("orders")
+      .delete()
+      .eq("id", rivalDraft.id)
+      .select("id");
+    check(
+      "manager cannot delete another bakery's draft",
+      (managerDeletesRivalDraft.data ?? []).length === 0,
+      managerDeletesRivalDraft.error?.message,
+    );
+
+    const forgedDelete = await manager.client
+      .from("orders")
+      .delete()
+      .eq("id", "00000000-0000-4000-8000-000000000000")
+      .select("id");
+    check(
+      "forged order id deletes nothing",
+      (forgedDelete.data ?? []).length === 0,
+    );
+
+    const { data: ownerDraft, error: ownerDraftError } = await admin
+      .from("orders")
+      .insert({
+        bakery_id: bakeryId,
+        product_type: "Cupcakes",
+        deadline_at: new Date(Date.now() + 86_400_000).toISOString(),
+        status: "draft",
+      })
+      .select("id")
+      .single();
+    if (ownerDraftError || !ownerDraft) {
+      fail(`could not create an owner draft: ${ownerDraftError?.message}`);
+    }
+
+    const ownerDeletesDraft = await owner.client
+      .from("orders")
+      .delete()
+      .eq("id", ownerDraft.id)
+      .select("id");
+    check(
+      "owner can delete a draft",
+      !ownerDeletesDraft.error && ownerDeletesDraft.data?.[0]?.id === ownerDraft.id,
+      ownerDeletesDraft.error?.message,
+    );
+
+    const storageRemove = await manager.client.storage
+      .from("order-references")
+      .remove([draftPath]);
+    check(
+      "manager can delete draft reference storage",
+      !storageRemove.error,
+      storageRemove.error?.message,
+    );
+
+    const managerDeletesDraft = await manager.client
+      .from("orders")
+      .delete()
+      .eq("id", draftOrder.id)
+      .select("id");
+    check(
+      "manager can delete a draft",
+      !managerDeletesDraft.error &&
+        managerDeletesDraft.data?.[0]?.id === draftOrder.id,
+      managerDeletesDraft.error?.message,
+    );
+
+    const leftoverFile = await admin.storage.from("order-references").download(draftPath);
+    check(
+      "draft deletion leaves no reference storage object",
+      leftoverFile.error != null,
+      leftoverFile.error?.message,
+    );
+
+    const leftoverRow = await admin
+      .from("order_references")
+      .select("id")
+      .eq("storage_path", draftPath);
+    check(
+      "draft deletion leaves no reference row",
+      (leftoverRow.data ?? []).length === 0,
+    );
+
+    await admin.from("orders").delete().eq("id", submittedOrder.id);
+    await admin.from("orders").delete().eq("id", rivalDraft.id);
+    await admin.from("orders").delete().eq("id", draftOrder.id);
+    await admin.storage.from("order-references").remove([draftPath]);
   } finally {
     // Restore the demo rows this script mutated, then drop the second tenant.
     await admin

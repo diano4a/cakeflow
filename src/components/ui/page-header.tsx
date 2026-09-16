@@ -1,8 +1,8 @@
 type PageHeaderProps = {
   /** Already-localized title. */
   title: string;
-  /** Already-localized supporting line. */
-  description: string;
+  /** Already-localized supporting line. Omitted when the page has no subtitle. */
+  description?: string;
 };
 
 /**
@@ -14,7 +14,9 @@ export function PageHeader({ title, description }: PageHeaderProps) {
   return (
     <header className="flex flex-col gap-cluster">
       <h1 className="type-heading">{title}</h1>
-      <p className="type-body text-muted measure">{description}</p>
+      {description ? (
+        <p className="type-body text-muted measure">{description}</p>
+      ) : null}
     </header>
   );
 }

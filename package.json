@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --experimental-strip-types --test src/features/orders/list.test.ts",
     "seed:dev": "node --env-file=.env.local scripts/seed-dev.mjs",
     "verify:rls": "node --env-file=.env.local scripts/verify-rls.mjs"
   },

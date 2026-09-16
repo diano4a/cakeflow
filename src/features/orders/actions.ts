@@ -22,7 +22,16 @@ import {
   validateReferenceFiles,
 } from "./references";
 import {
+  isUuid,
+  ordersListQuery,
+  parseDateFilter,
+  parseStatusFilter,
+  type DateFilter,
+  type StatusFilter,
+} from "./list";
+import {
   canCreateOrder,
+  canManageDrafts,
   type CreateOrderFormState,
   type OrderIntent,
   type OrderReferenceFormState,
@@ -281,7 +290,7 @@ export async function createOrder(
       manager_notes: notes || null,
       assignee_id: assigneeId || null,
       created_by: user.id,
-      status: intent === "submit" ? "submitted" : "draft",
+      status: "draft",
     })
     .select("id")
     .single();
@@ -320,6 +329,20 @@ export async function createOrder(
     if (uploadError) {
       await supabase.from("orders").delete().eq("id", created.id);
       return fail(formData, { references: uploadError });
+    }
+  }
+
+  if (intent === "submit") {
+    const { error: submitError } = await supabase
+      .from("orders")
+      .update({ status: "submitted" })
+      .eq("id", created.id)
+      .eq("bakery_id", workspace.bakery.id);
+
+    if (submitError) {
+      console.error("createOrder: submit failed", submitError);
+      await supabase.from("orders").delete().eq("id", created.id);
+      return fail(formData, {}, "unexpected");
     }
   }
 
@@ -423,16 +446,137 @@ export async function removeOrderReference(formData: FormData) {
     }
   }
 
-  const { error: deleteError } = await supabase
-    .from("order_references")
-    .delete()
-    .eq("id", existing.id)
-    .eq("bakery_id", workspace.bakery.id);
-
-  if (deleteError) {
-    console.error("removeOrderReference: row delete failed", deleteError);
-  }
-
   revalidatePath(`/${locale}${ORDERS_PATH}/${orderId}`);
   return redirect({ href: `${ORDERS_PATH}/${orderId}`, locale });
 }
+
+function readListFilters(formData: FormData): {
+  status: StatusFilter;
+  date: DateFilter;
+} {
+  return {
+    status: parseStatusFilter(readText(formData, "status") || undefined),
+    date: parseDateFilter(readText(formData, "date") || undefined),
+  };
+}
+
+function ordersHref(
+  filters: { status: StatusFilter; date: DateFilter },
+  extra?: { notice?: "draftDeleted"; error?: string },
+) {
+  const query = ordersListQuery({
+    status: filters.status,
+    date: filters.date,
+    notice: extra?.notice,
+    error:
+      extra?.error === "deleteForbidden" ||
+      extra?.error === "deleteNotDraft" ||
+      extra?.error === "deleteFailed" ||
+      extra?.error === "notFound"
+        ? extra.error
+        : null,
+  });
+  return query ? `${ORDERS_PATH}?${query}` : ORDERS_PATH;
+}
+
+export async function deleteDraft(formData: FormData) {
+  const locale = readLocale(formData);
+  const filters = readListFilters(formData);
+  const user = await getCurrentUser();
+  if (!user) {
+    return redirect({ href: SIGN_IN_PATH, locale });
+  }
+
+  const workspace = await getCurrentWorkspace();
+  if (!workspace || !canManageDrafts(workspace.role)) {
+    return redirect({
+      href: ordersHref(filters, { error: "deleteForbidden" }),
+      locale,
+    });
+  }
+
+  const orderId = readText(formData, "orderId");
+  if (!isUuid(orderId)) {
+    return redirect({
+      href: ordersHref(filters, { error: "notFound" }),
+      locale,
+    });
+  }
+
+  const supabase = await createClient();
+  const { data: existing, error: readError } = await supabase
+    .from("orders")
+    .select("id, status")
+    .eq("id", orderId)
+    .eq("bakery_id", workspace.bakery.id)
+    .maybeSingle();
+
+  if (readError || !existing) {
+    return redirect({
+      href: ordersHref(filters, { error: "notFound" }),
+      locale,
+    });
+  }
+
+  if (existing.status !== "draft") {
+    return redirect({
+      href: ordersHref(filters, { error: "deleteNotDraft" }),
+      locale,
+    });
+  }
+
+  const { data: references, error: referencesError } = await supabase
+    .from("order_references")
+    .select("storage_path")
+    .eq("order_id", existing.id)
+    .eq("bakery_id", workspace.bakery.id);
+
+  if (referencesError) {
+    console.error("deleteDraft: failed to list references", referencesError);
+    return redirect({
+      href: ordersHref(filters, { error: "deleteFailed" }),
+      locale,
+    });
+  }
+
+  const paths = (references ?? [])
+    .map((row) => row.storage_path)
+    .filter((path): path is string => Boolean(path));
+
+  if (paths.length > 0) {
+    const { error: storageError } = await supabase.storage
+      .from(ORDER_REFERENCE_BUCKET)
+      .remove(paths);
+    if (storageError) {
+      console.error("deleteDraft: storage delete failed", storageError);
+      return redirect({
+        href: ordersHref(filters, { error: "deleteFailed" }),
+        locale,
+      });
+    }
+  }
+
+  const { data: deleted, error: deleteError } = await supabase
+    .from("orders")
+    .delete()
+    .eq("id", existing.id)
+    .eq("bakery_id", workspace.bakery.id)
+    .eq("status", "draft")
+    .select("id");
+
+  if (deleteError || (deleted ?? []).length === 0) {
+    console.error("deleteDraft: row delete failed", deleteError);
+    return redirect({
+      href: ordersHref(filters, { error: "deleteFailed" }),
+      locale,
+    });
+  }
+
+  revalidatePath(`/${locale}${ORDERS_PATH}`);
+  revalidatePath(`/${locale}${ORDERS_PATH}/${existing.id}`);
+  return redirect({
+    href: ordersHref(filters, { notice: "draftDeleted" }),
+    locale,
+  });
+}
+

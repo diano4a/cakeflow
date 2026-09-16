@@ -40,6 +40,7 @@ export default async function OrderDetailPage({
           ← {t("back")}
         </Link>
       </p>
+      <p className="type-display">{t("orderNumber", { number: order.orderNumber })}</p>
       <PageHeader title={order.productType} description={t("detailDescription")} />
       <SpecList>
         <SpecRow label={t("fields.status")} data>

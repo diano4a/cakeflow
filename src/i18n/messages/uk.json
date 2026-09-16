@@ -68,7 +68,7 @@
   "Orders": {
     "title": "Замовлення",
     "placeholder": "Тут з'являться замовлення цієї кондитерської.",
-    "new": "+ Нове замовлення",
+    "new": "Нове замовлення",
     "createTitle": "Нове замовлення",
     "createDescription": "Перетворіть запит клієнта на структуроване замовлення для виробництва.",
     "back": "Замовлення",
@@ -91,6 +91,39 @@
     "emptyProductTypes": "Додайте тип виробу в Налаштуваннях, перш ніж створювати замовлення.",
     "openCatalog": "Відкрити каталог",
     "empty": "Замовлень ще немає.",
+    "emptyFiltered": "Немає замовлень за цими фільтрами.",
+    "emptyDrafts": "Чернеток немає.",
+    "resetFilters": "Скинути фільтри",
+    "orderNumber": "#{number}",
+    "openOrder": "Відкрити замовлення #{number}, {product}",
+    "editDraft": "Редагувати",
+    "deleteDraft": "Видалити",
+    "deleteDraftTitle": "Видалити чернетку",
+    "deleteDraftBody": "{order} буде видалено остаточно.",
+    "deleteDraftConfirm": "Видалити чернетку",
+    "deleteDraftCancel": "Скасувати",
+    "draftDeleted": "Чернетку видалено.",
+    "measurement": {
+      "kg": "{value} кг",
+      "pcs": "{count} шт"
+    },
+    "filters": {
+      "status": "Статус",
+      "date": "Дедлайн",
+      "allStatuses": "Усі статуси",
+      "allDates": "Усі дати",
+      "today": "Сьогодні",
+      "tomorrow": "Завтра",
+      "week": "Цей тиждень",
+      "overdue": "Прострочені"
+    },
+    "groups": {
+      "today": "Сьогодні",
+      "tomorrow": "Завтра",
+      "overdue": "Прострочені",
+      "none": "Без дедлайну",
+      "drafts": "Чернетки"
+    },
     "detailDescription": "Деталі виробництва та референсні зображення цього замовлення.",
     "referencesEmpty": "Референсних зображень ще немає.",
     "referencesHint": "JPEG, PNG, WebP або GIF. До 8 зображень, до 5 МБ кожне.",
@@ -152,7 +185,11 @@
       "referenceInvalid": "Використайте зображення JPEG, PNG, WebP або GIF.",
       "referenceTooLarge": "Кожне зображення має бути не більше 5 МБ.",
       "referenceTooMany": "У замовлення може бути до 8 референсних зображень.",
-      "referenceUploadFailed": "Не вдалося завантажити зображення. Спробуйте ще раз."
+      "referenceUploadFailed": "Не вдалося завантажити зображення. Спробуйте ще раз.",
+      "deleteForbidden": "У вас немає права видаляти чернетки.",
+      "deleteNotDraft": "Видаляти можна лише чернетки.",
+      "deleteFailed": "Не вдалося видалити чернетку. Спробуйте ще раз.",
+      "notFound": "Це замовлення не знайдено."
     }
   },
   "Production": {

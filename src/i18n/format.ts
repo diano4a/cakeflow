@@ -15,3 +15,20 @@ export async function formatDateTime(value: string | Date) {
     timeStyle: "short",
   });
 }
+
+export async function formatDateHeading(value: string | Date) {
+  const format = await getFormatter();
+
+  return format.dateTime(new Date(value), {
+    day: "numeric",
+    month: "long",
+  });
+}
+
+export async function formatTime(value: string | Date) {
+  const format = await getFormatter();
+
+  return format.dateTime(new Date(value), {
+    timeStyle: "short",
+  });
+}

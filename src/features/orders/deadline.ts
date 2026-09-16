@@ -1,4 +1,5 @@
-const KYIV_TIME_ZONE = "Europe/Kyiv";
+export const BAKERY_TIME_ZONE = "Europe/Kyiv";
+const KYIV_TIME_ZONE = BAKERY_TIME_ZONE;
 const LOCAL_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
 
 /**
